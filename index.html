@@ -1,195 +1,447 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مرحله ۲ - قرار دادن اعضا در چند مجموعه</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: "Vazirmatn", sans-serif;
-            background: radial-gradient(circle, #0f1b2b, #000);
-            color: white;
-            overflow: hidden;
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>مرحله ۲ — اشتراک (آزمایش تعاملی)</title>
+<style>
+  :root{
+    --bg1:#051018; --bg2:#071826;
+    --card:#ffffff10; --accent:#62f0ff; --good:#21d07a; --bad:#ff5b6b;
+    --glass: rgba(255,255,255,0.04);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; padding:26px; font-family: Vazirmatn, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:#e6f7fb; text-align:center; min-height:100vh;
+  }
+  h1{ margin:6px 0 12px; font-size:22px; letter-spacing:0.6px; }
+  .subtitle{ color:#99f4ff66; margin-bottom:12px; }
 
-        .intro-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            animation: fadeIn 1.2s ease;
-            z-index: 9999;
-        }
+  /* layout */
+  .top-row{ display:flex; gap:18px; justify-content:center; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  #scoreBox{ background:var(--glass); padding:10px 14px; border-radius:12px; font-weight:700; color:#aef7ff; }
+  #introSmall{ max-width:760px; text-align:center; color:#bff9ff; padding:12px 16px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow:0 6px 24px rgba(0,0,0,0.6); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+  .board{ display:flex; gap:18px; justify-content:center; align-items:flex-start; flex-wrap:wrap; margin-top:18px; }
 
-        .start-btn {
-            background: linear-gradient(135deg,#00ffaa,#00ccff);
-            padding: 18px 55px;
-            border-radius: 20px;
-            font-size: 28px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 0 25px #00eaff;
-            transition: 0.3s;
-        }
+  /* sets */
+  .set-box{
+    width:300px; min-height:160px; padding:14px; border-radius:14px; background:var(--glass); position:relative;
+    border:1px solid rgba(255,255,255,0.04); box-shadow:0 10px 30px rgba(0,0,0,0.55);
+    transition:transform .22s ease, box-shadow .22s ease;
+  }
+  .set-box.highlight{ transform:translateY(-6px); box-shadow:0 18px 44px rgba(0,240,255,0.08); }
+  .set-title{ font-weight:900; font-size:18px; margin-bottom:6px; color:#cffcff; letter-spacing:0.6px; }
+  .set-rule{ font-size:13px; color:#9deff6; opacity:0.9; margin-bottom:8px; }
+  .set-contents{ min-height:70px; display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; padding:6px; border-radius:8px; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01)); }
+  .set-braces{ position:absolute; right:12px; top:14px; font-weight:900; color:#76f6ff88; }
 
-        .start-btn:hover {
-            transform: scale(1.06);
-            box-shadow: 0 0 40px #00eaff;
-        }
+  /* cards tray */
+  .tray-area{ width:100%; margin-top:18px; display:flex; justify-content:center; }
+  .cards{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:900px; }
+  .card{
+    background: var(--card); padding:12px 16px; border-radius:28px; cursor:grab; user-select:none;
+    border:1px solid rgba(255,255,255,0.04); box-shadow:0 8px 30px rgba(0,0,0,0.5);
+    font-size:20px; min-width:52px; text-align:center; transition:transform .14s ease, box-shadow .14s ease;
+    color:#eafcff; font-weight:800;
+  }
+  .card:active{ cursor:grabbing; transform:scale(.98); }
+  .card.ghost{ opacity:.4; transform:scale(.96); }
+  .card.small{ padding:8px 10px; border-radius:20px; font-size:16px; min-width:40px; }
 
-        .container {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding-top: 40px;
-        }
+  /* placed */
+  .placed{ background: rgba(255,255,255,0.03); border-radius:10px; padding:8px 10px; display:inline-block; margin:6px 6px 0 0; cursor:grab; font-weight:800; color:#e8ffff; }
+  .placed.dragging{ opacity:.5; }
 
-        .set-box {
-            width: 26%;
-            height: 60%;
-            border: 3px dashed #00d0ff;
-            border-radius: 25px;
-            padding: 20px;
-            text-align: center;
-            font-size: 25px;
-            background: rgba(255,255,255,0.05);
-            box-shadow: 0 0 15px #00bfff inset;
-        }
+  /* success effect (mode D) */
+  .poof{
+    position:absolute; width:26px; height:26px; border-radius:100%; pointer-events:none;
+    transform:scale(0); opacity:0; transition:all .36s ease;
+  }
 
-        .cards {
-            position: fixed;
-            bottom: 20px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
+  /* glow animation */
+  @keyframes glowPulse {
+    0%{ box-shadow: 0 0 0 rgba(0,255,180,0); }
+    40%{ box-shadow: 0 0 20px rgba(0,255,180,0.85), 0 0 36px rgba(0,255,180,0.35); }
+    100%{ box-shadow: 0 0 0 rgba(0,255,180,0); }
+  }
 
-        .card {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg,#1e90ff,#00eaff);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 12px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: grab;
-            box-shadow: 0 0 15px #00c6ff;
-            transition: 0.2s;
-        }
+  /* wrong toss animation */
+  .toss-anim{ animation: toss 520ms cubic-bezier(.2,.9,.2,1); }
+  @keyframes toss{
+    0%{ transform: translateY(0) rotate(0) scale(1); opacity:1 }
+    40%{ transform: translateY(-28px) rotate(-15deg) scale(1.02); opacity:1 }
+    100%{ transform: translateY(160px) rotate(30deg) scale(.6); opacity:0 }
+  }
 
-        .card:active {
-            cursor: grabbing;
-            transform: scale(1.08);
-        }
+  /* shake */
+  @keyframes shakeX{ 0%{transform:none}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-6px)}100%{transform:none} }
+  .shake{ animation:shakeX .38s; }
 
-        /* خطای ورودی */
-        .error-anim {
-            animation: shake 0.3s ease;
-        }
+  /* welcome modal */
+  #welcome{
+    position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:9998;
+    background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.55));
+  }
+  .welcome-card{ background:linear-gradient(180deg,#071723,#04121a); padding:24px 28px; border-radius:14px; text-align:center; width:92%; max-width:760px; box-shadow:0 20px 60px rgba(0,0,0,0.7); color:#dffeff; border:1px solid rgba(255,255,255,0.04); }
+  .welcome-key{ font-size:48px; margin-bottom:8px; transform:rotate(-8deg); display:inline-block; filter:drop-shadow(0 10px 30px rgba(0,240,255,0.08)); }
+  .welcome-title{ font-weight:900; font-size:20px; margin-bottom:6px; letter-spacing:0.6px; }
+  .welcome-text{ color:#bffbff; opacity:0.95; margin-bottom:14px; }
+  .btn{ display:inline-block; padding:10px 16px; border-radius:12px; font-weight:800; cursor:pointer; border:none; margin:6px; }
+  .btn.start{ background:linear-gradient(90deg,#00f0ff,#00d6a5); color:#032; box-shadow:0 8px 28px rgba(0,216,165,0.12); }
+  .btn.later{ background:transparent; color:#9feef8; border:1px solid rgba(159,238,248,0.12); }
 
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
-            75% { transform: translateX(-10px); }
-            100% { transform: translateX(0); }
-        }
-    </style>
+  /* small helpers */
+  .muted{ color:#9beff6cc; font-size:13px; }
+  .hint{ font-size:13px; color:#9feeea; opacity:.9; margin-top:8px; }
+  footer{ margin-top:22px; color:#87f2ff88; font-size:13px; }
+</style>
 </head>
 <body>
+  <div id="welcome">
+    <div class="welcome-card" role="dialog" aria-modal="true">
+      <div class="welcome-key">🔐</div>
+      <div class="welcome-title">خوش آمدی — مرحلهٔ ۲</div>
+      <div class="welcome-text">در این مرحله یک عدد ممکن است هم‌زمان عضو چند مجموعه باشد. کارت را بکش و در هر مجموعه‌ای که ویژگی‌اش صادق است رها کن. هیچ خطای متنی سختی داده نمی‌شود — فقط بازی کن و یاد بگیر.</div>
+      <div style="margin-bottom:8px;" class="muted">A = اعداد فرد  •  B = اعداد کوچکتر از ۴  •  C = اعداد زوج</div>
+      <div>
+        <button class="btn start" id="btnStart">باز کن و شروع کن</button>
+        <button class="btn later" id="btnLater">بعداً</button>
+      </div>
+    </div>
+  </div>
 
-<!-- صفحه شروع با انیمیشن -->
-<div class="intro-overlay" id="intro">
-    <div class="start-btn" onclick="startGame()">شروع مرحله</div>
-</div>
+  <h1>مرحله ۲ — اشتراک (آزمایش تعاملی)</h1>
+  <div class="subtitle">کارت‌ها را بکش و در هر مجموعه‌ای که ویژگی‌اش صادق است رها کن — اگر عدد دو ویژگی داشت، در هر دو بینداز.</div>
 
-<div class="container">
+  <div class="top-row">
+    <div id="scoreBox">وضعیت: <span id="statusText">آماده</span></div>
+    <div id="introSmall">قوانین: A = اعداد فرد — B = اعداد کوچکتر از ۴ — C = اعداد زوج. کارت‌ها: ۱،۲،۳،۴،۵،۶، (و دو کارت اضافی: ۱ و ۲). هر کارت می‌تواند در چند مجموعه قرار گیرد.</div>
+  </div>
 
-    <div class="set-box" id="A" ondrop="drop(event, 'A')" ondragover="allowDrop(event)">
-        <b>A</b>
+  <div class="board">
+    <div class="set-box" data-set="A" id="setA">
+      <div class="set-title">A = <span style="font-weight:900">{ }</span></div>
+      <div class="set-rule">قانون: اعداد فرد (1, 3, 5)</div>
+      <div class="set-contents" data-contents="A"></div>
+      <div class="set-braces">A</div>
     </div>
 
-    <div class="set-box" id="B" ondrop="drop(event, 'B')" ondragover="allowDrop(event)">
-        <b>B</b>
+    <div class="set-box" data-set="B" id="setB">
+      <div class="set-title">B = <span style="font-weight:900">{ }</span></div>
+      <div class="set-rule">قانون: اعداد کمتر از ۴ (1, 2, 3)</div>
+      <div class="set-contents" data-contents="B"></div>
+      <div class="set-braces">B</div>
     </div>
 
-    <div class="set-box" id="C" ondrop="drop(event, 'C')" ondragover="allowDrop(event)">
-        <b>C</b>
+    <div class="set-box" data-set="C" id="setC">
+      <div class="set-title">C = <span style="font-weight:900">{ }</span></div>
+      <div class="set-rule">قانون: اعداد زوج (2, 4, 6)</div>
+      <div class="set-contents" data-contents="C"></div>
+      <div class="set-braces">C</div>
     </div>
-</div>
+  </div>
 
-<!-- کارت‌ها -->
-<div class="cards" id="cardArea">
-    <div class="card" draggable="true" ondragstart="drag(event)" data-value="1">1</div>
-    <div class="card" draggable="true" ondragstart="drag(event)" data-value="2">2</div>
-    <div class="card" draggable="true" ondragstart="drag(event)" data-value="3">3</div>
-    <div class="card" draggable="true" ondragstart="drag(event)" data-value="4">4</div>
-    <div class="card" draggable="true" ondragstart="drag(event)" data-value="5">5</div>
-    <div class="card" draggable="true" ondragstart="drag(event)" data-value="6">6</div>
-</div>
+  <div class="tray-area">
+    <div class="cards" id="tray">
+      <!-- cards: include duplicates for 1 and 2 -->
+      <div class="card" draggable="true" data-value="1">۱</div>
+      <div class="card" draggable="true" data-value="2">۲</div>
+      <div class="card" draggable="true" data-value="3">۳</div>
+      <div class="card" draggable="true" data-value="4">۴</div>
+      <div class="card" draggable="true" data-value="5">۵</div>
+      <div class="card" draggable="true" data-value="6">۶</div>
+      <div class="card" draggable="true" data-value="1">۱</div>
+      <div class="card" draggable="true" data-value="2">۲</div>
+    </div>
+  </div>
+
+  <div id="message" style="margin-top:12px;"></div>
+  <footer>یادآوری: کارت‌ها هنگام رها شدن اشتباهی گم نمی‌شوند — برمی‌گردند به سینی با یک پرتاب کوتاه.</footer>
 
 <script>
-function startGame() {
-    document.getElementById("intro").style.display = "none";
+/* ---------- data ---------- */
+const setsRules = {
+  A: v => (v % 2 === 1),          // odd
+  B: v => (v < 4),                // less than 4
+  C: v => (v % 2 === 0)           // even
+};
+
+const setsExample = {
+  A: [1,3,5],
+  B: [1,2,3],
+  C: [2,4,6]
+};
+
+const tray = document.getElementById('tray');
+const boxes = document.querySelectorAll('.set-box');
+const statusText = document.getElementById('statusText');
+const welcome = document.getElementById('welcome');
+const btnStart = document.getElementById('btnStart');
+const btnLater = document.getElementById('btnLater');
+
+function uniqueId(prefix='id'){ return prefix + '-' + Math.floor(Math.random()*1000000) + '-' + Date.now().toString(36); }
+
+/* ---------- UX helpers ---------- */
+function setStatus(text){
+  statusText.textContent = text;
 }
 
-function allowDrop(ev) {
-    ev.preventDefault();
+/* play poof effect in a set box (mode D) */
+function poofAt(box){
+  const p = document.createElement('div');
+  p.className = 'poof';
+  p.style.background = 'radial-gradient(circle at 30% 30%, rgba(0,255,200,0.95), rgba(0,200,120,0.75))';
+  box.appendChild(p);
+  // position center top-ish
+  p.style.left = '50%'; p.style.top = '34%'; p.style.transform = 'translate(-50%,-50%) scale(0)';
+  setTimeout(()=>{ p.style.transform = 'translate(-50%,-50%) scale(1)'; p.style.opacity = '1'; }, 30);
+  setTimeout(()=>{ p.style.transform = 'translate(-50%,-50%) scale(1.6)'; p.style.opacity = '0'; }, 240);
+  setTimeout(()=> p.remove(), 520);
 }
 
-function drag(ev) {
-    ev.dataTransfer.setData("value", ev.target.getAttribute("data-value"));
+/* highlight set briefly */
+function flashSet(box){
+  box.classList.add('highlight');
+  setTimeout(()=> box.classList.remove('highlight'), 520);
 }
 
-// قوانین
-function isValid(set, value) {
-    value = Number(value);
-
-    if (set === "A") return value % 2 === 1; // فرد
-    if (set === "B") return value < 4; // کوچکتر از 4
-    if (set === "C") return value % 2 === 0; // زوج
-
-    return false;
+/* create placed element in set */
+function createPlacedElement(value, setName){
+  const d = document.createElement('div');
+  d.className = 'placed';
+  d.textContent = value;
+  d.dataset.value = value;
+  d.dataset.set = setName;
+  d.id = uniqueId('placed');
+  makePlacedDraggable(d);
+  return d;
 }
 
-function drop(ev, setName) {
-    ev.preventDefault();
-    const value = ev.dataTransfer.getData("value");
-    const setBox = document.getElementById(setName);
+/* ---------- drag & drop logic ---------- */
 
-    if (!isValid(setName, value)) {
-        setBox.classList.add("error-anim");
-        setTimeout(() => setBox.classList.remove("error-anim"), 350);
-        return;
+/* Make tray cards draggable (tray originals remain in tray — placing creates copies) */
+function makeTrayCardDraggable(el){
+  el.addEventListener('dragstart', e=>{
+    e.dataTransfer.setData('value', el.dataset.value);
+    e.dataTransfer.setData('origin', 'tray');
+    e.dataTransfer.setData('dragId', el.id || uniqueId('tray'));
+    // small visual hint
+    el.classList.add('ghost');
+    setStatus('در حال کشیدن کارت...');
+  });
+  el.addEventListener('dragend', e=>{
+    el.classList.remove('ghost');
+    setStatus('آماده');
+  });
+}
+
+/* Make placed copies draggable & removable */
+function makePlacedDraggable(el){
+  // enable dragging the placed copy to move between sets or delete (drop on tray)
+  el.setAttribute('draggable', 'true');
+  el.addEventListener('dragstart', e=>{
+    e.dataTransfer.setData('value', el.dataset.value);
+    e.dataTransfer.setData('origin', 'placed');
+    e.dataTransfer.setData('dragId', el.id);
+    e.dataTransfer.setData('fromSet', el.dataset.set || '');
+    el.classList.add('dragging');
+    setStatus('در حال جابجایی کارت قرار گرفته...');
+  });
+  el.addEventListener('dragend', e=>{
+    el.classList.remove('dragging');
+    setStatus('آماده');
+  });
+
+  // click to remove the placed copy (user can take it back)
+  el.addEventListener('click', ()=>{
+    // gentle remove animation
+    el.style.transition = 'transform .32s ease, opacity .28s ease';
+    el.style.transform = 'translateY(8px) scale(.9)';
+    el.style.opacity = '0';
+    setTimeout(()=> el.remove(), 300);
+  });
+}
+
+/* set drop handlers */
+boxes.forEach(box=>{
+  box.addEventListener('dragover', e=> e.preventDefault());
+  box.addEventListener('dragenter', e=>{ box.classList.add('highlight'); });
+  box.addEventListener('dragleave', e=>{ box.classList.remove('highlight'); });
+
+  box.addEventListener('drop', e=>{
+    e.preventDefault();
+    box.classList.remove('highlight');
+    const value = Number(e.dataTransfer.getData('value'));
+    const origin = e.dataTransfer.getData('origin'); // tray or placed
+    const dragId = e.dataTransfer.getData('dragId');
+    const fromSet = e.dataTransfer.getData('fromSet');
+
+    handleDropToSet({value, origin, dragId, fromSet}, box);
+  });
+});
+
+/* tray drop area: used to delete placed copies if dropped on tray */
+tray.addEventListener('dragover', e=> e.preventDefault());
+tray.addEventListener('drop', e=>{
+  e.preventDefault();
+  const origin = e.dataTransfer.getData('origin');
+  const dragId = e.dataTransfer.getData('dragId');
+
+  if(origin === 'placed'){
+    const placedEl = document.getElementById(dragId);
+    if(placedEl){
+      // remove the placed copy (user returned it to tray)
+      placedEl.remove();
+      setStatus('کارت برداشته شد.');
     }
+  }
+});
 
-    let elem = document.createElement("div");
-    elem.className = "card";
-    elem.innerText = value;
-    elem.style.cursor = "default";
+/* handle drop logic */
+function handleDropToSet(drag, box){
+  const setName = box.dataset.set;
+  const contentsEl = box.querySelector('.set-contents');
+  const value = Number(drag.value);
 
-    setBox.appendChild(elem);
+  // check duplicate in same set
+  const existingVals = Array.from(contentsEl.children).map(n => Number(n.dataset.value));
+  if(existingVals.includes(value)){
+    // small shake and a toss-back effect (no textual error)
+    box.classList.add('shake');
+    setTimeout(()=> box.classList.remove('shake'), 380);
+    // make a quick toss visual
+    animateInvalidPlace(box);
+    setStatus('قبلاً در این مجموعه قرار گرفته.');
+    return;
+  }
+
+  // membership check
+  const rule = setsRules[setName];
+  const ok = rule(value);
+  if(!ok){
+    // wrong placement: animate toss and return
+    animateInvalidPlace(box);
+    setStatus('این مجموعه برای این عدد مناسب نیست — کارت به سینی برمی‌گردد.');
+    return;
+  }
+
+  // allowed placement
+  if(drag.origin === 'tray'){
+    // create placed copy inside set (tray original remains)
+    const placed = createPlacedElement(value, setName);
+    // add entry
+    contentsEl.appendChild(placed);
+    // mode D effects
+    flashSet(box);
+    poofAt(box);
+    placed.style.transform = 'rotate(-18deg) scale(.98)';
+    placed.style.opacity = '0';
+    setTimeout(()=>{ placed.style.transition = 'transform .36s cubic-bezier(.2,.9,.2,1), opacity .28s ease'; placed.style.transform = 'none'; placed.style.opacity = '1'; }, 10);
+    // small glow
+    placed.style.boxShadow = '0 8px 28px rgba(0,255,180,0.08)';
+    setTimeout(()=> placed.style.boxShadow = '', 720);
+
+    setStatus(`عدد ${value} در مجموعهٔ ${setName} قرار گرفت.`);
+    return;
+  }
+
+  if(drag.origin === 'placed'){
+    // moving a placed copy between sets: move original element (dragId)
+    const orig = document.getElementById(drag.dragId);
+    if(!orig){ setStatus('هیچی برای جابجا کردن وجود ندارد'); return; }
+    const origFrom = drag.fromSet || orig.dataset.set;
+    // if same set -> restore
+    if(origFrom === setName){
+      // nothing to do (just restore visuals)
+      orig.style.visibility = 'visible';
+      setStatus('در همان مجموعه رها شد.');
+      return;
+    }
+    // final move: remove from old parent and append to new
+    orig.remove();
+    orig.dataset.set = setName;
+    const moved = orig; // reuse element
+    moved.classList.remove('dragging');
+    // animation
+    moved.style.opacity = '0';
+    contentsEl.appendChild(moved);
+    setTimeout(()=> moved.style.opacity = '1', 20);
+    flashSet(box);
+    poofAt(box);
+    setStatus(`کارت از ${origFrom} به ${setName} منتقل شد.`);
+    return;
+  }
 }
-</script>
 
+/* animate invalid placement: quick toss from box to tray visual */
+function animateInvalidPlace(box){
+  // create a temp ball near the box and toss it downwards to tray
+  const tmp = document.createElement('div');
+  tmp.className = 'card toss-anim';
+  tmp.textContent = '✖';
+  tmp.style.position = 'absolute';
+  tmp.style.left = '50%';
+  tmp.style.top = '60%';
+  tmp.style.transform = 'translate(-50%,-50%)';
+  tmp.style.zIndex = 999;
+  tmp.style.pointerEvents = 'none';
+  tmp.style.background = 'linear-gradient(180deg, rgba(255,80,80,0.13), rgba(255,80,80,0.06))';
+  tmp.style.border = '1px solid rgba(255,90,90,0.12)';
+  tmp.style.color = '#fff';
+  tmp.style.padding = '8px 10px';
+  tmp.style.borderRadius = '12px';
+  box.appendChild(tmp);
+  // remove after animation
+  setTimeout(()=> tmp.remove(), 520);
+}
+
+/* make initial tray draggables */
+document.querySelectorAll('#tray .card').forEach(el=>{
+  // give each tray card an id if missing
+  if(!el.id) el.id = uniqueId('tray');
+  makeTrayCardDraggable(el);
+});
+
+/* small keyboard support: Esc to close welcome */
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){
+    if(welcome.style.display !== 'none') hideWelcome();
+  }
+});
+
+/* welcome controls */
+btnStart.addEventListener('click', ()=> hideWelcome());
+btnLater.addEventListener('click', ()=> hideWelcome());
+
+function hideWelcome(){
+  if(!welcome) return;
+  welcome.style.display = 'none';
+  setStatus('آماده — بازی کن!');
+}
+
+/* init status */
+setStatus('آماده');
+
+/* optional: update set-title braces to show current contents (reactive) */
+const updateSetBraces = () => {
+  document.querySelectorAll('.set-box').forEach(box=>{
+    const name = box.dataset.set;
+    const list = Array.from(box.querySelectorAll('.set-contents .placed')).map(n=>n.dataset.value);
+    const bracesEl = box.querySelector('.set-title span');
+    bracesEl.textContent = '{ ' + list.join(' , ') + ' }';
+  });
+};
+// observe mutations to set-contents to update braces when placed elements change
+const obsConfig = { childList:true, subtree:true };
+document.querySelectorAll('.set-contents').forEach(node=>{
+  const mo = new MutationObserver(()=> updateSetBraces());
+  mo.observe(node, obsConfig);
+});
+updateSetBraces();
+
+</script>
 </body>
 </html>
