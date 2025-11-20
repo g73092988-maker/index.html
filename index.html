@@ -35,7 +35,7 @@
   .set-note{ font-size:13px; color:#bfeaff; opacity:0.95; margin-bottom:8px; text-align:right; }
   .set-contents{ min-height:72px; display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; padding:6px; border-radius:8px; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01)); }
 
-  .brace-placeholder{ font-weight:900; color:rgba(255,200,120,0.08); }
+  .brace-el{ font-weight:900; color:#76f6ff88; }
 
   .tray-area{ width:100%; margin-top:18px; display:flex; justify-content:center; }
   .cards{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:980px; }
@@ -76,7 +76,7 @@
   .btn.later{ background:transparent; color:#9feef8; border:1px solid rgba(159,238,248,0.08); }
 
   .muted{ color:#9beff6cc; font-size:13px; }
-  /* removed footer / reminder as requested */
+  /* footer/ reminder intentionally removed */
 </style>
 </head>
 <body>
@@ -86,7 +86,6 @@
       <div class="welcome-key">🔬</div>
       <div class="welcome-title">قرار دادن اعضا در چند مجموعه</div>
       <div class="welcome-text">در این آزمایش یک عدد ممکن است هم‌زمان در چند مجموعه عضو باشد. کارت را بردار و در هر خانه‌ای که ویژگی‌اش برقرار است بینداز. بازی تجربه‌محور است؛ نگران پیام‌های خطای متنی سخت نباش.</div>
-      <!-- no rules / no examples here (removed as requested) -->
       <div>
         <button class="btn start" id="btnStart" style="visibility:hidden; transform:translateY(8px) scale(.98);">شروع کن</button>
         <button class="btn later" id="btnLater" style="visibility:hidden; transform:translateY(8px) scale(.98);">بعداً</button>
@@ -103,19 +102,19 @@
 
   <div class="board" aria-live="polite">
     <div class="set-box" data-set="A" id="setA">
-      <div class="set-title">A <span class="brace-placeholder"></span></div>
+      <div class="set-title">A = <span class="brace-el">{ }</span></div>
       <div class="set-note">A: اعداد فرد</div>
       <div class="set-contents" data-contents="A" aria-label="محتوای مجموعهٔ A"></div>
     </div>
 
     <div class="set-box" data-set="B" id="setB">
-      <div class="set-title">B <span class="brace-placeholder"></span></div>
+      <div class="set-title">B = <span class="brace-el">{ }</span></div>
       <div class="set-note">B: اعداد کمتر از ۴</div>
       <div class="set-contents" data-contents="B" aria-label="محتوای مجموعهٔ B"></div>
     </div>
 
     <div class="set-box" data-set="C" id="setC">
-      <div class="set-title">C <span class="brace-placeholder"></span></div>
+      <div class="set-title">C = <span class="brace-el">{ }</span></div>
       <div class="set-note">C: اعداد زوج</div>
       <div class="set-contents" data-contents="C" aria-label="محتوای مجموعهٔ C"></div>
     </div>
@@ -123,7 +122,7 @@
 
   <div class="tray-area" aria-label="سینی کارت‌ها">
     <div class="cards" id="tray">
-      <!-- cards (duplicates for 1 and 2 included per earlier request) -->
+      <!-- cards (شامل دو کارت اضافی 1 و 2) -->
       <div class="card" draggable="true" data-value="1">۱</div>
       <div class="card" draggable="true" data-value="2">۲</div>
       <div class="card" draggable="true" data-value="3">۳</div>
@@ -136,7 +135,7 @@
   </div>
 
 <script>
-/* ---------- قواعد مجموعه (حالت D/Mode kept) ---------- */
+/* ---------- قواعد مجموعه ---------- */
 const setsRules = {
   A: v => (v % 2 === 1),   // odd
   B: v => (v < 4),         // less than 4
@@ -152,8 +151,12 @@ const btnLater = document.getElementById('btnLater');
 const flash = document.getElementById('flash');
 
 function uniqueId(prefix='id'){ return prefix + '-' + Math.floor(Math.random()*1000000) + '-' + Date.now().toString(36); }
-
 function setStatus(text){ statusText.textContent = text; }
+
+/* convert english digits (0-9) to persian digits */
+function toPersianDigits(s){
+  return String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+}
 
 /* small visual effects */
 function poofAt(box){
@@ -171,19 +174,17 @@ function flashSet(box){
   setTimeout(()=> box.classList.remove('highlight'), 520);
 }
 
-/* create placed copy element */
+/* create placed copy element (click to remove) */
 function createPlacedElement(value, setName){
   const d = document.createElement('div');
   d.className = 'placed';
-  d.textContent = value;
+  d.textContent = toPersianDigits(value);
   d.dataset.value = value;
   d.dataset.set = setName;
   d.id = uniqueId('placed');
   makePlacedDraggable(d);
   return d;
 }
-
-/* tray originals remain; placing creates copies so a card can be in multiple sets */
 
 /* make tray card draggable */
 function makeTrayCardDraggable(el){
@@ -201,7 +202,7 @@ function makeTrayCardDraggable(el){
   });
 }
 
-/* make placed copy draggable and removable (click to remove) */
+/* make placed copy draggable & removable */
 function makePlacedDraggable(el){
   el.setAttribute('draggable','true');
   el.addEventListener('dragstart', e=>{
@@ -224,7 +225,7 @@ function makePlacedDraggable(el){
   });
 }
 
-/* set drop handlers */
+/* set drop handlers for sets */
 boxes.forEach(box=>{
   box.addEventListener('dragover', e=> e.preventDefault());
   box.addEventListener('dragenter', e=> box.classList.add('highlight'));
@@ -233,14 +234,14 @@ boxes.forEach(box=>{
     e.preventDefault();
     box.classList.remove('highlight');
     const value = Number(e.dataTransfer.getData('value'));
-    const origin = e.dataTransfer.getData('origin'); // 'tray' or 'placed'
+    const origin = e.dataTransfer.getData('origin');
     const dragId = e.dataTransfer.getData('dragId');
     const fromSet = e.dataTransfer.getData('fromSet');
     handleDropToSet({value, origin, dragId, fromSet}, box);
   });
 });
 
-/* tray drop: returning a placed card (delete the placed copy) */
+/* tray drop: delete placed copy if dropped on tray */
 tray.addEventListener('dragover', e=> e.preventDefault());
 tray.addEventListener('drop', e=>{
   e.preventDefault();
@@ -251,17 +252,14 @@ tray.addEventListener('drop', e=>{
     if(placedEl){
       placedEl.remove();
       setStatus('کارت برداشته شد.');
+      updateBraces();
     }
   }
 });
 
-/* wrong placement animation (toss + ×) */
+/* invalid placement animation (toss + ×) */
 function animateInvalidPlace(box){
-  // small shake
-  box.classList.add('shake');
-  setTimeout(()=> box.classList.remove('shake'), 360);
-
-  // transient × indicator that tosses down
+  box.classList.add('shake'); setTimeout(()=> box.classList.remove('shake'), 360);
   const tmp = document.createElement('div');
   tmp.className = 'card toss-anim';
   tmp.textContent = '✖';
@@ -286,7 +284,7 @@ function handleDropToSet(drag, box){
   const contentsEl = box.querySelector('.set-contents');
   const value = Number(drag.value);
 
-  // duplicate check in that set
+  // duplicate check
   const existingVals = Array.from(contentsEl.children).map(n => Number(n.dataset.value));
   if(existingVals.includes(value)){
     animateInvalidPlace(box);
@@ -305,16 +303,14 @@ function handleDropToSet(drag, box){
 
   // allowed placement
   if(drag.origin === 'tray'){
-    // create placed copy
     const placed = createPlacedElement(value, setName);
     contentsEl.appendChild(placed);
     flashSet(box);
     poofAt(box);
-    placed.style.transform = 'rotate(-12deg) scale(.98)';
-    placed.style.opacity = '0';
+    placed.style.transform = 'rotate(-12deg) scale(.98)'; placed.style.opacity = '0';
     setTimeout(()=>{ placed.style.transition = 'transform .36s cubic-bezier(.2,.9,.2,1), opacity .28s ease'; placed.style.transform = 'none'; placed.style.opacity = '1'; }, 10);
-    setStatus(`عدد ${value} در مجموعهٔ ${setName} قرار گرفت.`);
-    updateBraces(); // update optional visual (if used later)
+    setStatus(`عدد ${toPersianDigits(value)} در مجموعهٔ ${setName} قرار گرفت.`);
+    updateBraces();
     return;
   }
 
@@ -327,10 +323,13 @@ function handleDropToSet(drag, box){
       setStatus('در همان مجموعه رها شد.');
       return;
     }
-    // move element
     orig.remove();
     orig.dataset.set = setName;
-    contentsEl.appendChild(orig);
+    const moved = orig;
+    moved.classList.remove('dragging');
+    moved.style.opacity = '0';
+    contentsEl.appendChild(moved);
+    setTimeout(()=> moved.style.opacity = '1', 20);
     flashSet(box);
     poofAt(box);
     setStatus(`کارت از ${origFrom} به ${setName} منتقل شد.`);
@@ -345,10 +344,9 @@ document.querySelectorAll('#tray .card').forEach(el=>{
   makeTrayCardDraggable(el);
 });
 
-/* welcome modal: white flash then show buttons */
+/* welcome modal: white flash then reveal buttons */
 function showStartFlashThenButtons(){
-  flash.classList.add('flash-in'); // show white flash
-  // after short flash, reveal buttons with small pop
+  flash.classList.add('flash-in');
   setTimeout(()=>{
     btnStart.style.visibility = 'visible';
     btnLater.style.visibility = 'visible';
@@ -359,28 +357,30 @@ function showStartFlashThenButtons(){
   }, 360);
 }
 document.addEventListener('DOMContentLoaded', ()=> {
-  // kick the flash animation a tick after load so user sees it
   setTimeout(()=> showStartFlashThenButtons(), 220);
 });
 
 /* welcome controls */
 btnStart.addEventListener('click', ()=> hideWelcome());
 btnLater.addEventListener('click', ()=> hideWelcome());
-function hideWelcome(){
-  if(!welcome) return;
-  welcome.style.display = 'none';
-  setStatus('آماده — بازی کن!');
-}
+function hideWelcome(){ if(!welcome) return; welcome.style.display = 'none'; setStatus('آماده — بازی کن!'); }
 
 /* keyboard: Esc to close welcome */
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape') hideWelcome(); });
 
-/* small helper to update braces (not visible by default, kept if needed) */
+/* update braces { ... } with persian digits and commas */
 function updateBraces(){
   document.querySelectorAll('.set-box').forEach(box=>{
     const list = Array.from(box.querySelectorAll('.set-contents .placed')).map(n => n.dataset.value);
-    const ph = box.querySelector('.brace-placeholder');
-    if(ph) ph.textContent = list.length ? '{ ' + list.join(' , ') + ' }' : '';
+    const braceEl = box.querySelector('.brace-el');
+    if(braceEl){
+      if(list.length === 0) braceEl.textContent = '{ }';
+      else {
+        // display values as persian digits with " , " separator
+        const pers = list.map(v => toPersianDigits(v));
+        braceEl.textContent = '{ ' + pers.join(' , ') + ' }';
+      }
+    }
   });
 }
 const obsCfg = { childList:true, subtree:true };
@@ -392,6 +392,7 @@ updateBraces();
 
 /* initial status */
 setStatus('آماده');
+
 </script>
 </body>
 </html>
