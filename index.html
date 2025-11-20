@@ -3,368 +3,348 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>مرحله ۲ — آزمایش تعاملی</title>
+<title>مرحله ۲ — اشتراک (مقدماتی)</title>
 <style>
   :root{
-    --bg1:#061229; /* deep navy */
-    --bg2:#07182a;
-    --panel:#0d2130;
-    --card:#0f2a36;
-    --accent:#8be0ff;   /* cyan-ish */
-    --accent-2:#ffd36b; /* warm highlight */
-    --good:#5fe08b;
-    --bad:#ff7b7b;
-    --glass: rgba(255,255,255,0.03);
-    --math-blue:#6fb3ff;
-    --math-purple:#9b8cff;
+    --bg:#071126;
+    --panel:#0f1724;
+    --glass: rgba(255,255,255,0.04);
+    --accent:#6ee7b7;
+    --accent2:#7dd3fc;
+    --muted:#9fb4c8;
+    --good:#22c55e;
+    --bad:#ff6b6b;
+    --gold:#f6d365;
   }
   *{box-sizing:border-box}
   body{
-    margin:0; padding:26px; font-family: Vazirmatn, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui;
-    background: linear-gradient(180deg,var(--bg1),var(--bg2));
-    color:#e6f7fb; text-align:center; min-height:100vh;
+    margin:0; padding:28px; font-family: Vazirmatn, system-ui, system-ui,-apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(34,50,82,0.65), transparent),
+                linear-gradient(180deg,#041021 0%, #071126 100%);
+    color:#e6f0fb; text-align:center; min-height:100vh;
   }
-  h1{ margin:6px 0 8px; font-size:22px; letter-spacing:0.6px; color:var(--math-blue); }
-  .subtitle{ color:#bfeeff66; margin-bottom:12px; font-size:14px; }
+  h1{ margin:6px 0 16px; font-size:22px; color:var(--accent2); letter-spacing:0.6px; }
+  /* top info row */
+  .top-row{ display:flex; gap:12px; justify-content:center; align-items:center; margin-bottom:18px; flex-wrap:wrap; }
+  .badge{
+    background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.04);
+    padding:10px 14px; border-radius:12px; font-weight:700; color:var(--muted); min-width:140px;
+  }
 
-  /* header row: small status */
-  .top-row{ display:flex; gap:14px; justify-content:center; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
-  #statusBox{ background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04)); padding:8px 12px; border-radius:10px; font-weight:800; color:var(--accent); border:1px solid rgba(139,224,255,0.06); }
-
-  /* board layout */
-  .board{ display:flex; gap:18px; justify-content:center; align-items:flex-start; flex-wrap:wrap; margin-top:6px; padding:8px; }
-
+  /* sets area */
+  .sets-wrap{ display:flex; gap:18px; justify-content:center; align-items:flex-start; flex-wrap:wrap; margin-bottom:20px; }
   .set-box{
-    width:300px; min-height:150px; padding:14px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.06));
-    border:1px solid rgba(255,255,255,0.035); position:relative; box-shadow:0 10px 30px rgba(3,10,20,0.6);
-    transition:transform .22s cubic-bezier(.2,.9,.2,1), box-shadow .22s ease;
+    width:260px; background:var(--panel); border-radius:14px; padding:14px; position:relative;
+    border:2px solid rgba(125,211,252,0.06); box-shadow: 0 8px 30px rgba(2,6,23,0.6);
   }
-  .set-box.highlight{ transform:translateY(-6px) scale(1.01); box-shadow:0 20px 48px rgba(43,120,200,0.06); }
-  .set-title{ font-weight:900; font-size:18px; margin-bottom:6px; color:var(--math-purple); display:flex; justify-content:space-between; align-items:center; }
-  .set-rule{ font-size:13px; color:#bfeaff; opacity:0.95; margin-bottom:8px; }
-  .set-contents{ min-height:76px; display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; padding:6px; border-radius:8px; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01)); }
+  .set-header{ display:flex; justify-content:space-between; align-items:center; font-weight:800; color:var(--accent2); margin-bottom:8px; font-size:16px; }
+  .set-title{ font-family: "Courier New", monospace; font-size:15px; color:#dff8ff; }
+  .set-desc{ font-size:13px; color:var(--muted); text-align:left; margin-top:6px; line-height:1.25; }
 
-  .set-braces{ font-weight:900; color:var(--accent-2); font-size:13px; background:linear-gradient(90deg, rgba(255,211,120,0.06), rgba(139,224,255,0.02)); padding:4px 8px; border-radius:8px; }
+  /* brace display */
+  .brace{ font-family: "Courier New", monospace; font-size:15px; color:#aee; margin-top:8px; text-align:left; min-height:36px; }
 
-  /* tray and cards */
-  .tray-area{ width:100%; margin-top:16px; display:flex; justify-content:center; }
-  .cards{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:980px; }
+  /* placed chips */
+  .set-contents{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-start; min-height:36px; }
+  .chip{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:6px 10px; border-radius:10px; font-weight:700; cursor:pointer; user-select:none;
+    border:1px solid rgba(125,211,252,0.06);
+  }
+  .chip:hover{ transform:translateY(-4px); transition:transform .18s; }
+
+  /* tray */
+  .tray{ margin:18px auto 10px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:920px; }
   .card{
-    background:linear-gradient(180deg, rgba(255,255,255,0.012), rgba(0,0,0,0.06)); padding:12px 16px; border-radius:28px; cursor:grab; user-select:none;
-    border:1px solid rgba(255,255,255,0.03); box-shadow:0 8px 22px rgba(0,0,0,0.5);
-    font-size:20px; min-width:54px; text-align:center; transition:transform .12s ease, box-shadow .12s ease;
-    color:#e9fbff; font-weight:900;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:28px; padding:12px 18px; min-width:56px; text-align:center; font-size:18px;
+    cursor:grab; user-select:none; border:1px solid rgba(255,255,255,0.04); box-shadow: 0 8px 20px rgba(2,6,23,0.5);
   }
-  .card:active{ cursor:grabbing; transform:scale(.98); }
-  .card.ghost{ opacity:.45; transform:scale(.96); }
+  .card:active{ cursor:grabbing; transform:scale(.99); }
+  .card.fade{ opacity:.28; transform:scale(.98); }
 
-  /* placed */
-  .placed{ background: rgba(255,255,255,0.02); border-radius:10px; padding:8px 10px; display:inline-block; margin:6px 6px 0 0; cursor:grab; font-weight:800; color:#efffff; border:1px solid rgba(139,224,255,0.04); }
-  .placed.dragging{ opacity:.5; }
+  /* small tips */
+  .hint{ color:var(--muted); margin-top:10px; font-size:14px; }
 
-  /* poof effect */
-  .poof{ position:absolute; width:26px; height:26px; border-radius:100%; pointer-events:none; transform:scale(0); opacity:0; transition:all .36s ease; }
-
-  /* toss animation (wrong) */
-  .toss-anim{ animation: toss 520ms cubic-bezier(.2,.9,.2,1); }
-  @keyframes toss{
-    0%{ transform: translateY(0) rotate(0) scale(1); opacity:1 }
-    40%{ transform: translateY(-26px) rotate(-12deg) scale(1.02); opacity:1 }
-    100%{ transform: translateY(160px) rotate(24deg) scale(.6); opacity:0 }
+  /* entrance overlay (curtain + key) */
+  #overlay{
+    position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:9999;
+    background: linear-gradient(180deg, rgba(2,6,23,0.85), rgba(2,6,23,0.9));
+    backdrop-filter: blur(3px);
   }
-
-  @keyframes shakeX{ 0%{transform:none}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-6px)}100%{transform:none} }
-  .shake{ animation:shakeX .36s; }
-
-  /* welcome modal (kept, slightly restyled) */
-  #welcome{
-    position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:9998;
-    background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.55));
+  .curtain{
+    position:absolute; inset:0; background: linear-gradient(180deg, rgba(20,60,30,0.9), rgba(10,30,20,0.95));
+    display:flex; justify-content:center; align-items:center; flex-direction:column;
+    animation: curtainIn .9s ease both;
   }
-  .welcome-card{ background:linear-gradient(180deg,#07142a,#041022); padding:22px 26px; border-radius:12px; text-align:center; width:92%; max-width:640px; box-shadow:0 20px 60px rgba(0,0,0,0.7); color:#e7fbff; border:1px solid rgba(255,255,255,0.04); }
-  .welcome-key{ font-size:44px; margin-bottom:8px; transform:rotate(-6deg); display:inline-block; }
-  .welcome-title{ font-weight:900; font-size:20px; margin-bottom:6px; color:var(--math-blue); }
-  .welcome-text{ color:#cfeeff; opacity:0.96; margin-bottom:12px; font-size:14px; line-height:1.4; }
-  .btn{ display:inline-block; padding:10px 16px; border-radius:12px; font-weight:800; cursor:pointer; border:none; margin:6px; }
-  .btn.start{ background:linear-gradient(90deg,var(--math-blue),var(--math-purple)); color:#042032; box-shadow:0 10px 30px rgba(111,179,255,0.08); }
-  .btn.later{ background:transparent; color:#9feef8; border:1px solid rgba(159,238,248,0.10); }
+  @keyframes curtainIn{ from{opacity:0; transform:scale(1.06)} to{opacity:1; transform:none} }
 
-  /* helper text */
-  .muted{ color:#9beff6cc; font-size:13px; }
-  footer{ display:none } /* removed footer as requested */
+  .curtain .title{ font-size:22px; font-weight:900; color:var(--accent); margin-bottom:10px; text-shadow:0 6px 30px rgba(0,200,170,0.06); }
+  .curtain .sub{ color:var(--muted); font-size:15px; max-width:560px; text-align:center; margin-bottom:18px; }
+
+  .keyWrap{ opacity:0; transform:translateY(16px) scale(.98); transition:all .6s cubic-bezier(.2,.9,.2,1) .6s; }
+  .keyWrap.show{ opacity:1; transform:none; }
+
+  .key{
+    background: linear-gradient(90deg,#ffd86b,#f6d365);
+    color:#072222; font-weight:900; padding:14px 22px; border-radius:999px; cursor:pointer;
+    box-shadow: 0 12px 40px rgba(246,211,101,0.15), inset 0 -6px 16px rgba(0,0,0,0.06);
+    border:0; font-size:16px;
+  }
+  .key:active{ transform:translateY(2px); }
+
+  /* subtle pulse when placed */
+  .flashPulse{ animation: pulseGreen .8s ease; }
+  @keyframes pulseGreen{ 0%{box-shadow:0 0 0 rgba(34,197,94,0)} 40%{box-shadow:0 0 26px rgba(34,197,94,0.18)} 100%{box-shadow:0 0 0 rgba(34,197,94,0)} }
+
+  /* shake */
+  @keyframes shake{0%{transform:none}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-6px)}100%{transform:none}}
+  .shake{ animation:shake .36s; }
+
+  /* small responsive */
+  @media (max-width:860px){
+    .set-box{ width:92%; max-width:420px; }
+  }
 </style>
 </head>
 <body>
-  <div id="welcome" aria-hidden="false">
-    <div class="welcome-card" role="dialog" aria-modal="true">
-      <div class="welcome-key">🗝️</div>
-      <div class="welcome-title">به مرحلهٔ دوم خوش آمدی</div>
-      <div class="welcome-text">در این قسمت ممکن است یک کارت را چند بار ببینی — یعنی یک عدد می‌تواند به چند جایگاه معتبر تعلق داشته باشد. کارت را بکش و در هرخانه‌ای که ویژگی‌اش برقرار است رها کن. بازی تجربه‌محور است؛ نگران پیغام‌های خطای سخت نباش.</div>
-      <div style="margin-bottom:6px;" class="muted">قواعد هر باکس در همان باکس نوشته شده — از بالای صفحه برداشته شده‌اند تا صفحه تمیزتر و تمرکزی‌تر باشد.</div>
-      <div>
-        <button class="btn start" id="btnStart">شروع کن</button>
-        <button class="btn later" id="btnLater">بعداً</button>
+
+  <h1>مرحلهٔ ۲ — آزمایشِ «می‌تواند هم‌زمان در چند مجموعه باشد»</h1>
+
+  <div class="top-row" aria-hidden="true">
+    <div class="badge">هدف: تشخیص عضویت‌های هم‌زمان</div>
+    <div class="badge">کارت‌ها: ۱ ، ۲ ، ۳ ، ۴ ، ۵ ، ۶ ، ۱ ، ۲</div>
+    <div class="badge">روش: کارت را بکش و در هر مجموعه‌ای که شرط را دارد رها کن</div>
+  </div>
+
+  <div class="sets-wrap">
+    <div class="set-box" data-set="A" id="boxA">
+      <div class="set-header">
+        <div class="set-title">A = { }</div>
+        <div style="font-size:12px;color:var(--muted)">A</div>
       </div>
+      <div class="set-desc">قوانین: اعضای فرد</div>
+      <div class="brace" id="braceA">A = { }</div>
+      <div class="set-contents" id="contentsA"></div>
+    </div>
+
+    <div class="set-box" data-set="B" id="boxB">
+      <div class="set-header">
+        <div class="set-title">B = { }</div>
+        <div style="font-size:12px;color:var(--muted)">B</div>
+      </div>
+      <div class="set-desc">قوانین: اعداد کوچکتر از ۴</div>
+      <div class="brace" id="braceB">B = { }</div>
+      <div class="set-contents" id="contentsB"></div>
+    </div>
+
+    <div class="set-box" data-set="C" id="boxC">
+      <div class="set-header">
+        <div class="set-title">C = { }</div>
+        <div style="font-size:12px;color:var(--muted)">C</div>
+      </div>
+      <div class="set-desc">قوانین: اعداد زوج</div>
+      <div class="brace" id="braceC">C = { }</div>
+      <div class="set-contents" id="contentsC"></div>
     </div>
   </div>
 
-  <h1>مرحله ۲ — آزمایش تعاملی</h1>
-  <div class="subtitle">کارت‌ها را بکش و در هر باکس که ویژگیِ عدد برقرار است رها کن — اگر عدد چند ویژگی داشت، در هر کدام بینداز.</div>
-
-  <div class="top-row">
-    <div id="statusBox">وضعیت: <span id="statusText">آماده</span></div>
+  <div class="tray" id="tray" aria-label="سینی کارت‌ها">
+    <!-- cards: duplicates included -->
+    <div class="card" draggable="true" data-value="1">۱</div>
+    <div class="card" draggable="true" data-value="2">۲</div>
+    <div class="card" draggable="true" data-value="3">۳</div>
+    <div class="card" draggable="true" data-value="4">۴</div>
+    <div class="card" draggable="true" data-value="5">۵</div>
+    <div class="card" draggable="true" data-value="6">۶</div>
+    <div class="card" draggable="true" data-value="1">۱</div>
+    <div class="card" draggable="true" data-value="2">۲</div>
   </div>
 
-  <div class="board" aria-live="polite">
-    <div class="set-box" data-set="A" id="setA">
-      <div class="set-title">
-        A
-        <span class="set-braces">{ }</span>
-      </div>
-      <div class="set-rule">قانون: اعداد فرد — مثال: 1 , 3 , 5</div>
-      <div class="set-contents" data-contents="A" aria-label="محتوای مجموعهٔ A"></div>
-    </div>
+  <div class="hint">نکته: کارت‌ها پس از انداختن در باکس، در سینی می‌مانند — لازم است همان کارت را برای هر مجموعهٔ مزبور جداگانه در آن مجموعه رها کنی. برای برداشتن یک عدد از مجموعه کافیست روی آن کلیک کنی.</div>
 
-    <div class="set-box" data-set="B" id="setB">
-      <div class="set-title">
-        B
-        <span class="set-braces">{ }</span>
-      </div>
-      <div class="set-rule">قانون: اعداد کمتر از ۴ — مثال: 1 , 2 , 3</div>
-      <div class="set-contents" data-contents="B" aria-label="محتوای مجموعهٔ B"></div>
-    </div>
+  <!-- overlay entrance -->
+  <div id="overlay" role="dialog" aria-modal="true">
+    <div class="curtain">
+      <div class="title">آزمایشِ مرحلهٔ ۲ آماده است</div>
+      <div class="sub">به‌صورت آزمایشی ببین که یک عدد ممکن است هم‌زمان عضوِ چند مجموعه باشد. وقتی آماده‌ای، کلید را فشار بده تا وارد بازی شوی.</div>
 
-    <div class="set-box" data-set="C" id="setC">
-      <div class="set-title">
-        C
-        <span class="set-braces">{ }</span>
+      <div class="keyWrap" id="keyWrap">
+        <button class="key" id="enterKey">🔑 باز کن درِ آزمایش</button>
       </div>
-      <div class="set-rule">قانون: اعداد زوج — مثال: 2 , 4 , 6</div>
-      <div class="set-contents" data-contents="C" aria-label="محتوای مجموعهٔ C"></div>
-    </div>
-  </div>
-
-  <div class="tray-area" aria-label="سینی کارت‌ها">
-    <div class="cards" id="tray">
-      <!-- cards (شامل دو کارت اضافی 1 و 2) -->
-      <div class="card" draggable="true" data-value="1">۱</div>
-      <div class="card" draggable="true" data-value="2">۲</div>
-      <div class="card" draggable="true" data-value="3">۳</div>
-      <div class="card" draggable="true" data-value="4">۴</div>
-      <div class="card" draggable="true" data-value="5">۵</div>
-      <div class="card" draggable="true" data-value="6">۶</div>
-      <div class="card" draggable="true" data-value="1">۱</div>
-      <div class="card" draggable="true" data-value="2">۲</div>
     </div>
   </div>
 
 <script>
-/* ---------- قواعد و حالت بازی (حالت D نگه داشته شد) ---------- */
-const setsRules = {
-  A: v => (v % 2 === 1),          // odd
-  B: v => (v < 4),                // less than 4
-  C: v => (v % 2 === 0)           // even
+/* ---------- داده‌های مجموعه (تعاریف ریاضی‌ای) ---------- */
+const setsDef = {
+  A: (n) => n % 2 === 1,          // فرد
+  B: (n) => n < 4,                // کوچکتر از 4
+  C: (n) => n % 2 === 0           // زوج
 };
 
+/* المان‌ها */
 const tray = document.getElementById('tray');
-const boxes = document.querySelectorAll('.set-box');
-const statusText = document.getElementById('statusText');
-const welcome = document.getElementById('welcome');
-const btnStart = document.getElementById('btnStart');
-const btnLater = document.getElementById('btnLater');
+const boxes = {
+  A: document.getElementById('boxA'),
+  B: document.getElementById('boxB'),
+  C: document.getElementById('boxC')
+};
+const contents = {
+  A: document.getElementById('contentsA'),
+  B: document.getElementById('contentsB'),
+  C: document.getElementById('contentsC')
+};
+const braces = {
+  A: document.getElementById('braceA'),
+  B: document.getElementById('braceB'),
+  C: document.getElementById('braceC')
+};
 
-function uniqueId(prefix='id'){ return prefix + '-' + Math.floor(Math.random()*1000000) + '-' + Date.now().toString(36); }
+/* state: track which numbers are in which set (use arrays to preserve order, and unique) */
+const setMembers = { A: [], B: [], C: [] };
 
-function setStatus(text){ statusText.textContent = text; }
-
-/* visual helpers */
-function poofAt(box){
-  const p = document.createElement('div');
-  p.className = 'poof';
-  p.style.background = 'radial-gradient(circle at 30% 30%, rgba(139,224,255,0.95), rgba(107,179,255,0.6))';
-  box.appendChild(p);
-  p.style.left = '50%'; p.style.top = '34%'; p.style.transform = 'translate(-50%,-50%) scale(0)';
-  setTimeout(()=>{ p.style.transform = 'translate(-50%,-50%) scale(1)'; p.style.opacity = '1'; }, 30);
-  setTimeout(()=>{ p.style.transform = 'translate(-50%,-50%) scale(1.6)'; p.style.opacity = '0'; }, 240);
-  setTimeout(()=> p.remove(), 520);
-}
-function flashSet(box){
-  box.classList.add('highlight');
-  setTimeout(()=> box.classList.remove('highlight'), 520);
-}
-function createPlacedElement(value, setName){
-  const d = document.createElement('div');
-  d.className = 'placed';
-  d.textContent = value;
-  d.dataset.value = value;
-  d.dataset.set = setName;
-  d.id = uniqueId('placed');
-  makePlacedDraggable(d);
-  return d;
+/* helper: update brace text from setMembers */
+function updateBraces(){
+  for(const k of ['A','B','C']){
+    const arr = setMembers[k];
+    braces[k].textContent = `${k} = { ${arr.join(arr.length? ', ' : '')}${arr.join(', ')} }`.replace(',  }',' }').replace('{  }','{ }');
+    // simpler: handle empty nicely
+    if(arr.length === 0) braces[k].textContent = `${k} = { }`;
+    else braces[k].textContent = `${k} = { ${arr.join(', ')} }`;
+  }
 }
 
-/* ---------- drag & drop ---------- */
-function makeTrayCardDraggable(el){
-  if(!el.id) el.id = uniqueId('tray');
-  el.addEventListener('dragstart', e=>{
-    e.dataTransfer.setData('value', el.dataset.value);
-    e.dataTransfer.setData('origin', 'tray');
-    e.dataTransfer.setData('dragId', el.id);
-    el.classList.add('ghost');
-    setStatus('در حال کشیدن کارت...');
-  });
-  el.addEventListener('dragend', e=>{
-    el.classList.remove('ghost');
-    setStatus('آماده');
-  });
+/* helper: add chip to set (only if not already present) */
+function addToSet(setName, value){
+  const v = Number(value);
+  if(setMembers[setName].includes(v)) return false; // already there
+  setMembers[setName].push(v);
+  renderSetChips(setName);
+  updateBraces();
+  // small pulse on box
+  const box = boxes[setName];
+  box.classList.add('flashPulse');
+  setTimeout(()=> box.classList.remove('flashPulse'), 700);
+  return true;
 }
-function makePlacedDraggable(el){
-  el.setAttribute('draggable', 'true');
-  el.addEventListener('dragstart', e=>{
-    e.dataTransfer.setData('value', el.dataset.value);
-    e.dataTransfer.setData('origin', 'placed');
-    e.dataTransfer.setData('dragId', el.id);
-    e.dataTransfer.setData('fromSet', el.dataset.set || '');
-    el.classList.add('dragging');
-    setStatus('در حال جابجایی کارت قرار گرفته...');
-  });
-  el.addEventListener('dragend', e=>{
-    el.classList.remove('dragging');
-    setStatus('آماده');
-  });
-  el.addEventListener('click', ()=>{
-    el.style.transition = 'transform .28s ease, opacity .22s ease';
-    el.style.transform = 'translateY(8px) scale(.9)';
-    el.style.opacity = '0';
-    setTimeout(()=> el.remove(), 260);
+
+/* helper: remove chip by element click */
+function removeFromSet(setName, value){
+  const v = Number(value);
+  setMembers[setName] = setMembers[setName].filter(x => x !== v);
+  renderSetChips(setName);
+  updateBraces();
+}
+
+/* render chips inside set */
+function renderSetChips(setName){
+  const el = contents[setName];
+  el.innerHTML = '';
+  setMembers[setName].forEach(val=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = val;
+    // click to remove
+    chip.addEventListener('click', ()=> {
+      removeFromSet(setName, val);
+    });
+    el.appendChild(chip);
   });
 }
 
-/* set handlers */
-boxes.forEach(box=>{
+/* make tray cards draggable */
+function setupTrayCard(card){
+  card.addEventListener('dragstart', e=>{
+    e.dataTransfer.setData('value', card.dataset.value);
+    e.dataTransfer.setData('origin','tray');
+    e.dataTransfer.setData('dragId', '');
+    // visual hint
+    card.classList.add('fade');
+    setTimeout(()=> card.classList.remove('fade'), 320);
+  });
+  // touch / click friendly: small pop
+  card.addEventListener('click', ()=> {
+    card.animate([{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:160});
+  });
+}
+
+/* initialize tray */
+Array.from(tray.querySelectorAll('.card')).forEach(setupTrayCard);
+
+/* make sets accept drops */
+Object.keys(boxes).forEach(setName=>{
+  const box = boxes[setName];
   box.addEventListener('dragover', e=> e.preventDefault());
-  box.addEventListener('dragenter', e=> box.classList.add('highlight'));
-  box.addEventListener('dragleave', e=> box.classList.remove('highlight'));
   box.addEventListener('drop', e=>{
     e.preventDefault();
-    box.classList.remove('highlight');
     const value = Number(e.dataTransfer.getData('value'));
-    const origin = e.dataTransfer.getData('origin');
-    const dragId = e.dataTransfer.getData('dragId');
-    const fromSet = e.dataTransfer.getData('fromSet');
-    handleDropToSet({value, origin, dragId, fromSet}, box);
-  });
-});
-
-/* tray drop => remove placed copy (return to tray) */
-tray.addEventListener('dragover', e=> e.preventDefault());
-tray.addEventListener('drop', e=>{
-  e.preventDefault();
-  const origin = e.dataTransfer.getData('origin');
-  const dragId = e.dataTransfer.getData('dragId');
-  if(origin === 'placed'){
-    const placedEl = document.getElementById(dragId);
-    if(placedEl) placedEl.remove();
-    setStatus('کارت برداشته شد.');
-  }
-});
-
-/* invalid place animation */
-function animateInvalidPlace(box){
-  const tmp = document.createElement('div');
-  tmp.className = 'card toss-anim';
-  tmp.textContent = '✖';
-  tmp.style.position = 'absolute';
-  tmp.style.left = '50%';
-  tmp.style.top = '60%';
-  tmp.style.transform = 'translate(-50%,-50%)';
-  tmp.style.zIndex = 999;
-  tmp.style.pointerEvents = 'none';
-  tmp.style.background = 'linear-gradient(180deg, rgba(255,120,120,0.08), rgba(255,80,80,0.04))';
-  tmp.style.border = '1px solid rgba(255,120,120,0.08)';
-  tmp.style.color = '#fff';
-  tmp.style.padding = '8px 10px';
-  tmp.style.borderRadius = '12px';
-  box.appendChild(tmp);
-  setTimeout(()=> tmp.remove(), 520);
-}
-
-/* main drop logic */
-function handleDropToSet(drag, box){
-  const setName = box.dataset.set;
-  const contentsEl = box.querySelector('.set-contents');
-  const value = Number(drag.value);
-  const existingVals = Array.from(contentsEl.children).map(n => Number(n.dataset.value));
-  if(existingVals.includes(value)){
-    box.classList.add('shake');
-    setTimeout(()=> box.classList.remove('shake'), 360);
-    animateInvalidPlace(box);
-    setStatus('قبلاً در این خانه قرار گرفته.');
-    return;
-  }
-  const rule = setsRules[setName];
-  const ok = rule(value);
-  if(!ok){
-    animateInvalidPlace(box);
-    setStatus('این جایگاه برای این عدد مناسب نیست — کارت به سینی برمی‌گردد.');
-    return;
-  }
-  if(drag.origin === 'tray'){
-    const placed = createPlacedElement(value, setName);
-    contentsEl.appendChild(placed);
-    flashSet(box);
-    poofAt(box);
-    placed.style.transform = 'rotate(-12deg) scale(.98)';
-    placed.style.opacity = '0';
-    setTimeout(()=>{ placed.style.transition = 'transform .36s cubic-bezier(.2,.9,.2,1), opacity .28s ease'; placed.style.transform = 'none'; placed.style.opacity = '1'; }, 10);
-    setStatus(`عدد ${value} در ${setName} قرار گرفت.`);
-    return;
-  }
-  if(drag.origin === 'placed'){
-    const orig = document.getElementById(drag.dragId);
-    if(!orig){ setStatus('هیچ‌چیز برای جابجایی نیست'); return; }
-    const origFrom = drag.fromSet || orig.dataset.set;
-    if(origFrom === setName){
-      orig.style.visibility = 'visible';
-      setStatus('در همان جایگاه رها شد.');
-      return;
+    const origin = e.dataTransfer.getData('origin'); // tray
+    // membership test
+    if(setsDef[setName](value)){
+      // allowed: add to set (but do NOT remove tray card — in stage2 tray keeps originals)
+      const added = addToSet(setName, value);
+      if(added){
+        // create a small placed chip (already rendered by renderSetChips), optional sound/animation here
+      } else {
+        // already present: subtle shake
+        box.classList.add('shake');
+        setTimeout(()=> box.classList.remove('shake'), 380);
+      }
+    } else {
+      // not a member: do nothing except gentle shake and return (no harsh error)
+      box.classList.add('shake');
+      setTimeout(()=> box.classList.remove('shake'), 380);
+      // additionally a small flash of red border
+      const old = box.style.borderColor;
+      box.style.borderColor = 'rgba(255,107,107,0.6)';
+      setTimeout(()=> box.style.borderColor = 'rgba(125,211,252,0.06)', 420);
     }
-    orig.remove();
-    orig.dataset.set = setName;
-    contentsEl.appendChild(orig);
-    flashSet(box);
-    poofAt(box);
-    setStatus(`کارت از ${origFrom} به ${setName} منتقل شد.`);
-    return;
-  }
-}
-
-/* init draggables */
-document.querySelectorAll('#tray .card').forEach(el => makeTrayCardDraggable(el));
-
-/* update braces { ... } reactive */
-const updateSetBraces = () => {
-  document.querySelectorAll('.set-box').forEach(box=>{
-    const list = Array.from(box.querySelectorAll('.set-contents .placed')).map(n=>n.dataset.value);
-    const bracesEl = box.querySelector('.set-braces');
-    bracesEl.textContent = '{ ' + list.join(' , ') + ' }';
+    // ensure any tray card visuals restored
+    const dragId = e.dataTransfer.getData('dragId');
+    if(dragId){
+      const t = document.getElementById(dragId);
+      if(t){ t.classList.remove('fade'); }
+    }
   });
-};
-const obsConfig = { childList:true, subtree:true };
-document.querySelectorAll('.set-contents').forEach(node=>{
-  const mo = new MutationObserver(()=> updateSetBraces());
-  mo.observe(node, obsConfig);
 });
-updateSetBraces();
 
-/* welcome controls */
-btnStart.addEventListener('click', ()=> hideWelcome());
-btnLater.addEventListener('click', ()=> hideWelcome());
-function hideWelcome(){ if(!welcome) return; welcome.style.display = 'none'; setStatus('آماده — بازی کن!'); }
-document.addEventListener('keydown', e=>{ if(e.key === 'Escape'){ hideWelcome(); } });
+/* also allow dropping outside to "cancel" (no action) */
+document.body.addEventListener('dragover', e=> e.preventDefault());
+document.body.addEventListener('drop', e=>{
+  // if drop on background — do nothing; tray cards were never removed so nothing to restore
+  e.preventDefault();
+});
 
-/* initial status */
-setStatus('آماده');
+/* update braces initially */
+updateBraces();
+
+/* entrance overlay logic */
+const overlay = document.getElementById('overlay');
+const keyWrap = document.getElementById('keyWrap');
+setTimeout(()=> keyWrap.classList.add('show'), 650);
+document.getElementById('enterKey').addEventListener('click', ()=>{
+  // play a small animation: fade out overlay
+  overlay.style.transition = 'opacity .42s ease, transform .42s ease';
+  overlay.style.opacity = '0';
+  overlay.style.transform = 'scale(.98)';
+  setTimeout(()=> overlay.style.display = 'none', 460);
+});
+
+/* keyboard accessibility: Esc to close overlay */
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && overlay.style.display !== 'none'){
+    overlay.style.display = 'none';
+  }
+});
+
+/* optional: touch support for mobile (dragstart already handles most) */
+/* No error messages pop — per spec */
+
+/* ensure braces stay in requested format (English letter then = then braces) already implemented above */
+
+/* small helper: clicking a chip removes it (done in render); ensure braces update — done */
 
 </script>
 </body>
