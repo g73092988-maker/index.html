@@ -1,122 +1,195 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>مرحله ۲ — آزمایش تعاملی</title>
-<style>
-  :root{
-    --bg1:#061229; /* deep navy */
-    --bg2:#07182a;
-    --panel:#0d2130;
-    --card:#0f2a36;
-    --accent:#8be0ff;   /* cyan-ish */
-    --accent-2:#ffd36b; /* warm highlight */
-    --good:#5fe08b;
-    --bad:#ff7b7b;
-    --glass: rgba(255,255,255,0.03);
-    --math-blue:#6fb3ff;
-    --math-purple:#9b8cff;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; padding:26px; font-family: Vazirmatn, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui;
-    background: linear-gradient(180deg,var(--bg1),var(--bg2));
-    color:#e6f7fb; text-align:center; min-height:100vh;
-  }
-  h1{ margin:6px 0 8px; font-size:22px; letter-spacing:0.6px; color:var(--math-blue); }
-  .subtitle{ color:#bfeeff66; margin-bottom:12px; font-size:14px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مرحله ۲ - قرار دادن اعضا در چند مجموعه</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Vazirmatn", sans-serif;
+            background: radial-gradient(circle, #0f1b2b, #000);
+            color: white;
+            overflow: hidden;
+        }
 
-  /* header row: small status */
-  .top-row{ display:flex; gap:14px; justify-content:center; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
-  #statusBox{ background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04)); padding:8px 12px; border-radius:10px; font-weight:800; color:var(--accent); border:1px solid rgba(139,224,255,0.06); }
+        .intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            animation: fadeIn 1.2s ease;
+            z-index: 9999;
+        }
 
-  /* board layout */
-  .board{ display:flex; gap:18px; justify-content:center; align-items:flex-start; flex-wrap:wrap; margin-top:6px; padding:8px; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-  .set-box{
-    width:300px; min-height:150px; padding:14px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.06));
-    border:1px solid rgba(255,255,255,0.035); position:relative; box-shadow:0 10px 30px rgba(3,10,20,0.6);
-    transition:transform .22s cubic-bezier(.2,.9,.2,1), box-shadow .22s ease;
-  }
-  .set-box.highlight{ transform:translateY(-6px) scale(1.01); box-shadow:0 20px 48px rgba(43,120,200,0.06); }
-  .set-title{ font-weight:900; font-size:18px; margin-bottom:6px; color:var(--math-purple); display:flex; justify-content:space-between; align-items:center; }
-  .set-rule{ font-size:13px; color:#bfeaff; opacity:0.95; margin-bottom:8px; }
-  .set-contents{ min-height:76px; display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; padding:6px; border-radius:8px; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01)); }
+        .start-btn {
+            background: linear-gradient(135deg,#00ffaa,#00ccff);
+            padding: 18px 55px;
+            border-radius: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 25px #00eaff;
+            transition: 0.3s;
+        }
 
-  .set-braces{ font-weight:900; color:var(--accent-2); font-size:13px; background:linear-gradient(90deg, rgba(255,211,120,0.06), rgba(139,224,255,0.02)); padding:4px 8px; border-radius:8px; min-width:72px; text-align:left; }
+        .start-btn:hover {
+            transform: scale(1.06);
+            box-shadow: 0 0 40px #00eaff;
+        }
 
-  /* tray and cards */
-  .tray-area{ width:100%; margin-top:16px; display:flex; justify-content:center; }
-  .cards{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:980px; }
-  .card{
-    background:linear-gradient(180deg, rgba(255,255,255,0.012), rgba(0,0,0,0.06)); padding:12px 16px; border-radius:28px; cursor:grab; user-select:none;
-    border:1px solid rgba(255,255,255,0.03); box-shadow:0 8px 22px rgba(0,0,0,0.5);
-    font-size:20px; min-width:54px; text-align:center; transition:transform .12s ease, box-shadow .12s ease;
-    color:#e9fbff; font-weight:900;
-  }
-  .card:active{ cursor:grabbing; transform:scale(.98); }
-  .card.ghost{ opacity:.45; transform:scale(.96); }
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-top: 40px;
+        }
 
-  /* placed */
-  .placed{ background: rgba(255,255,255,0.02); border-radius:10px; padding:8px 10px; display:inline-block; margin:6px 6px 0 0; cursor:grab; font-weight:800; color:#efffff; border:1px solid rgba(139,224,255,0.04); }
-  .placed.dragging{ opacity:.5; }
+        .set-box {
+            width: 26%;
+            height: 60%;
+            border: 3px dashed #00d0ff;
+            border-radius: 25px;
+            padding: 20px;
+            text-align: center;
+            font-size: 25px;
+            background: rgba(255,255,255,0.05);
+            box-shadow: 0 0 15px #00bfff inset;
+        }
 
-  /* poof effect */
-  .poof{ position:absolute; width:26px; height:26px; border-radius:100%; pointer-events:none; transform:scale(0); opacity:0; transition:all .36s ease; }
+        .cards {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
 
-  /* toss animation (wrong) */
-  .toss-anim{ animation: toss 520ms cubic-bezier(.2,.9,.2,1); }
-  @keyframes toss{
-    0%{ transform: translateY(0) rotate(0) scale(1); opacity:1 }
-    40%{ transform: translateY(-26px) rotate(-12deg) scale(1.02); opacity:1 }
-    100%{ transform: translateY(160px) rotate(24deg) scale(.6); opacity:0 }
-  }
+        .card {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg,#1e90ff,#00eaff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: grab;
+            box-shadow: 0 0 15px #00c6ff;
+            transition: 0.2s;
+        }
 
-  @keyframes shakeX{ 0%{transform:none}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-6px)}100%{transform:none} }
-  .shake{ animation:shakeX .36s; }
+        .card:active {
+            cursor: grabbing;
+            transform: scale(1.08);
+        }
 
-  /* welcome modal (kept, slightly restyled) */
-  #welcome{
-    position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:9998;
-    background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.55));
-  }
-  .welcome-card{ background:linear-gradient(180deg,#07142a,#041022); padding:22px 26px; border-radius:12px; text-align:center; width:92%; max-width:640px; box-shadow:0 20px 60px rgba(0,0,0,0.7); color:#e7fbff; border:1px solid rgba(255,255,255,0.04); }
-  .welcome-key{ font-size:44px; margin-bottom:8px; transform:rotate(-6deg); display:inline-block; }
-  .welcome-title{ font-weight:900; font-size:20px; margin-bottom:6px; color:var(--math-blue); }
-  .welcome-text{ color:#cfeeff; opacity:0.96; margin-bottom:12px; font-size:14px; line-height:1.4; }
-  .btn{ display:inline-block; padding:10px 16px; border-radius:12px; font-weight:800; cursor:pointer; border:none; margin:6px; }
-  .btn.start{ background:linear-gradient(90deg,var(--math-blue),var(--math-purple)); color:#042032; box-shadow:0 10px 30px rgba(111,179,255,0.08); }
-  .btn.later{ background:transparent; color:#9feef8; border:1px solid rgba(159,238,248,0.10); }
+        /* خطای ورودی */
+        .error-anim {
+            animation: shake 0.3s ease;
+        }
 
-  /* helper text */
-  .muted{ color:#9beff6cc; font-size:13px; }
-  footer{ display:none } /* removed footer as requested */
-</style>
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
 </head>
 <body>
-  <div id="welcome" aria-hidden="false">
-    <div class="welcome-card" role="dialog" aria-modal="true">
-      <div class="welcome-key">🗝️</div>
-      <div class="welcome-title">به مرحلهٔ دوم خوش آمدی</div>
-      <div class="welcome-text">در این قسمت ممکن است یک کارت را چند بار ببینی — یعنی یک عدد می‌تواند به چند جایگاه معتبر تعلق داشته باشد. کارت را بکش و در هرخانه‌ای که ویژگیِ عدد برقرار است رها کن. بازی تجربه‌محور است؛ نگران پیغام‌های خطای سخت نباش.</div>
-      <div style="margin-bottom:6px;" class="muted">قواعد هر باکس در همان باکس نوشته شده — از بالای صفحه برداشته شده‌اند تا صفحه تمیزتر و تمرکزی‌تر باشد.</div>
-      <div>
-        <button class="btn start" id="btnStart">شروع کن</button>
-        <button class="btn later" id="btnLater">بعداً</button>
-      </div>
+
+<!-- صفحه شروع با انیمیشن -->
+<div class="intro-overlay" id="intro">
+    <div class="start-btn" onclick="startGame()">شروع مرحله</div>
+</div>
+
+<div class="container">
+
+    <div class="set-box" id="A" ondrop="drop(event, 'A')" ondragover="allowDrop(event)">
+        <b>A</b>
     </div>
-  </div>
 
-  <h1>مرحله ۲ — آزمایش تعاملی</h1>
-  <div class="subtitle">کارت‌ها را بکش و در هر باکس که ویژگیِ عدد برقرار است رها کن — اگر عدد چند ویژگی داشت، در هر کدام بینداز.</div>
+    <div class="set-box" id="B" ondrop="drop(event, 'B')" ondragover="allowDrop(event)">
+        <b>B</b>
+    </div>
 
-  <div class="top-row">
-    <div id="statusBox">وضعیت: <span id="statusText">آماده</span></div>
-  </div>
+    <div class="set-box" id="C" ondrop="drop(event, 'C')" ondragover="allowDrop(event)">
+        <b>C</b>
+    </div>
+</div>
 
-  <div class="board" aria-live="polite">
-    <div class="set-box" data-set="A" id="setA">
-      <div class="set-title">
-        A
-        <span class="set-braces">{ }</span
+<!-- کارت‌ها -->
+<div class="cards" id="cardArea">
+    <div class="card" draggable="true" ondragstart="drag(event)" data-value="1">1</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" data-value="2">2</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" data-value="3">3</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" data-value="4">4</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" data-value="5">5</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" data-value="6">6</div>
+</div>
+
+<script>
+function startGame() {
+    document.getElementById("intro").style.display = "none";
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("value", ev.target.getAttribute("data-value"));
+}
+
+// قوانین
+function isValid(set, value) {
+    value = Number(value);
+
+    if (set === "A") return value % 2 === 1; // فرد
+    if (set === "B") return value < 4; // کوچکتر از 4
+    if (set === "C") return value % 2 === 0; // زوج
+
+    return false;
+}
+
+function drop(ev, setName) {
+    ev.preventDefault();
+    const value = ev.dataTransfer.getData("value");
+    const setBox = document.getElementById(setName);
+
+    if (!isValid(setName, value)) {
+        setBox.classList.add("error-anim");
+        setTimeout(() => setBox.classList.remove("error-anim"), 350);
+        return;
+    }
+
+    let elem = document.createElement("div");
+    elem.className = "card";
+    elem.innerText = value;
+    elem.style.cursor = "default";
+
+    setBox.appendChild(elem);
+}
+</script>
+
+</body>
+</html>
