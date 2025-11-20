@@ -3,118 +3,113 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>مرحله ۲ — قرار دادن اعضا در چند مجموعه</title>
+<title>مرحله ۲ — آزمایش تعاملی</title>
 <style>
   :root{
-    --bg1:#020617; --bg2:#071226;
-    --card-bg:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
-    --accent:#6ff1ff; --accent-2:#9ad6ff; --warm:#ffd36b;
-    --good:#4fe09a; --bad:#ff6b6b; --glass: rgba(255,255,255,0.03);
-    --math-grid: rgba(110,180,255,0.03);
+    --bg1:#061229; /* deep navy */
+    --bg2:#07182a;
+    --panel:#0d2130;
+    --card:#0f2a36;
+    --accent:#8be0ff;   /* cyan-ish */
+    --accent-2:#ffd36b; /* warm highlight */
+    --good:#5fe08b;
+    --bad:#ff7b7b;
+    --glass: rgba(255,255,255,0.03);
+    --math-blue:#6fb3ff;
+    --math-purple:#9b8cff;
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
   body{
-    margin:0; padding:28px; font-family: Vazirmatn, "Segoe UI", Roboto, Arial, system-ui;
-    background:
-      radial-gradient(900px 450px at 8% 12%, rgba(102,255,240,0.03), transparent),
-      linear-gradient(180deg,var(--bg1),var(--bg2));
-    color:#e8fbff; text-align:center; min-height:100vh;
-    -webkit-font-smoothing:antialiased;
-    background-image: linear-gradient(transparent, rgba(255,255,255,0.00) 30%), 
-                      radial-gradient(circle at 50% 20%, rgba(255,255,255,0.01), transparent 10%),
-                      linear-gradient(90deg, rgba(255,255,255,0.00), rgba(255,255,255,0.00));
+    margin:0; padding:26px; font-family: Vazirmatn, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui;
+    background: linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:#e6f7fb; text-align:center; min-height:100vh;
   }
+  h1{ margin:6px 0 8px; font-size:22px; letter-spacing:0.6px; color:var(--math-blue); }
+  .subtitle{ color:#bfeeff66; margin-bottom:12px; font-size:14px; }
 
-  /* subtle math grid in background */
-  body::before{
-    content:""; position:fixed; inset:0; pointer-events:none;
-    background-image:
-      linear-gradient(transparent 95%, var(--math-grid) 95%),
-      linear-gradient(90deg, transparent 95%, var(--math-grid) 95%);
-    background-size: 60px 60px, 60px 60px;
-    opacity:0.7;
-    mix-blend-mode: screen;
-  }
+  /* header row: small status */
+  .top-row{ display:flex; gap:14px; justify-content:center; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+  #statusBox{ background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04)); padding:8px 12px; border-radius:10px; font-weight:800; color:var(--accent); border:1px solid rgba(139,224,255,0.06); }
 
-  h1{ margin:6px 0 12px; font-size:22px; letter-spacing:0.6px; color:var(--accent); }
-  .subtitle{ color:#bffcffaa; margin-bottom:8px; font-size:14px; }
-
-  .top-row{ display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
-  #statusBox{ background:var(--glass); padding:8px 12px; border-radius:10px; font-weight:800; color:var(--accent); border:1px solid rgba(111,241,255,0.04); }
-
-  .board{ display:flex; gap:18px; justify-content:center; align-items:flex-start; flex-wrap:wrap; margin-top:6px; padding:6px; }
+  /* board layout */
+  .board{ display:flex; gap:18px; justify-content:center; align-items:flex-start; flex-wrap:wrap; margin-top:6px; padding:8px; }
 
   .set-box{
-    width:320px; min-height:150px; padding:14px; border-radius:12px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.06));
-    border:1px solid rgba(255,255,255,0.03); position:relative; box-shadow:0 12px 40px rgba(0,0,0,0.55);
-    transition: transform .18s cubic-bezier(.2,.9,.2,1), box-shadow .18s ease;
+    width:300px; min-height:150px; padding:14px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.06));
+    border:1px solid rgba(255,255,255,0.035); position:relative; box-shadow:0 10px 30px rgba(3,10,20,0.6);
+    transition:transform .22s cubic-bezier(.2,.9,.2,1), box-shadow .22s ease;
   }
-  .set-box.highlight{ transform:translateY(-6px) scale(1.01); box-shadow:0 24px 68px rgba(100,210,255,0.06); }
-  .set-title{ font-weight:900; font-size:18px; margin-bottom:8px; color:#e7ffff; display:flex; justify-content:space-between; align-items:center; }
-  .set-note{ font-size:13px; color:#bfeaff; opacity:0.88; margin-bottom:8px; text-align:right; }
-  .set-contents{ min-height:72px; display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; padding:6px; border-radius:8px; background:linear-gradient(180deg, rgba(0,0,0,0.01), rgba(255,255,255,0.01)); }
+  .set-box.highlight{ transform:translateY(-6px) scale(1.01); box-shadow:0 20px 48px rgba(43,120,200,0.06); }
+  .set-title{ font-weight:900; font-size:18px; margin-bottom:6px; color:var(--math-purple); display:flex; justify-content:space-between; align-items:center; }
+  .set-rule{ font-size:13px; color:#bfeaff; opacity:0.95; margin-bottom:8px; }
+  .set-contents{ min-height:76px; display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; padding:6px; border-radius:8px; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01)); }
 
-  .brace-el{ font-weight:900; color:var(--warm); font-size:13px; }
+  .set-braces{ font-weight:900; color:var(--accent-2); font-size:13px; background:linear-gradient(90deg, rgba(255,211,120,0.06), rgba(139,224,255,0.02)); padding:4px 8px; border-radius:8px; }
 
-  .tray-area{ width:100%; margin-top:18px; display:flex; justify-content:center; }
+  /* tray and cards */
+  .tray-area{ width:100%; margin-top:16px; display:flex; justify-content:center; }
   .cards{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:980px; }
   .card{
-    background:var(--card-bg); padding:12px 16px; border-radius:28px; cursor:grab; user-select:none;
-    border:1px solid rgba(255,255,255,0.03); box-shadow:0 10px 30px rgba(0,0,0,0.45);
+    background:linear-gradient(180deg, rgba(255,255,255,0.012), rgba(0,0,0,0.06)); padding:12px 16px; border-radius:28px; cursor:grab; user-select:none;
+    border:1px solid rgba(255,255,255,0.03); box-shadow:0 8px 22px rgba(0,0,0,0.5);
     font-size:20px; min-width:54px; text-align:center; transition:transform .12s ease, box-shadow .12s ease;
     color:#e9fbff; font-weight:900;
   }
   .card:active{ cursor:grabbing; transform:scale(.98); }
   .card.ghost{ opacity:.45; transform:scale(.96); }
 
-  .placed{ background: rgba(255,255,255,0.02); border-radius:10px; padding:8px 10px; display:inline-block; margin:6px 6px 0 0; cursor:grab; font-weight:800; color:#e8ffff; border:1px solid rgba(255,210,120,0.04); }
+  /* placed */
+  .placed{ background: rgba(255,255,255,0.02); border-radius:10px; padding:8px 10px; display:inline-block; margin:6px 6px 0 0; cursor:grab; font-weight:800; color:#efffff; border:1px solid rgba(139,224,255,0.04); }
   .placed.dragging{ opacity:.5; }
 
+  /* poof effect */
   .poof{ position:absolute; width:26px; height:26px; border-radius:100%; pointer-events:none; transform:scale(0); opacity:0; transition:all .36s ease; }
 
-  @keyframes toss{ 0%{ transform: translateY(0) rotate(0) scale(1); opacity:1 } 40%{ transform: translateY(-26px) rotate(-12deg) scale(1.02); opacity:1 } 100%{ transform: translateY(160px) rotate(24deg) scale(.6); opacity:0 } }
+  /* toss animation (wrong) */
   .toss-anim{ animation: toss 520ms cubic-bezier(.2,.9,.2,1); }
+  @keyframes toss{
+    0%{ transform: translateY(0) rotate(0) scale(1); opacity:1 }
+    40%{ transform: translateY(-26px) rotate(-12deg) scale(1.02); opacity:1 }
+    100%{ transform: translateY(160px) rotate(24deg) scale(.6); opacity:0 }
+  }
 
   @keyframes shakeX{ 0%{transform:none}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-6px)}100%{transform:none} }
   .shake{ animation:shakeX .36s; }
 
-  /* welcome modal + white flash before button */
+  /* welcome modal (kept, slightly restyled) */
   #welcome{
-    position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:9999;
-    background: linear-gradient(180deg, rgba(0,0,0,0.64), rgba(0,0,0,0.55));
+    position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:9998;
+    background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.55));
   }
-  .welcome-card{ background:linear-gradient(180deg,#06182a,#021122); padding:26px 28px; border-radius:14px; text-align:center; width:92%; max-width:720px; box-shadow:0 26px 80px rgba(0,0,0,0.7); color:#e7fbff; border:1px solid rgba(255,255,255,0.03); position:relative; overflow:hidden; }
-  .flash-white{ position:absolute; inset:0; background:radial-gradient(circle at 50% 10%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.10) 6%, rgba(255,255,255,0) 16%); opacity:0; transform:scale(0.85); transition:all .36s ease; pointer-events:none; }
-  .flash-in{ opacity:1; transform:scale(1); transition:all .26s ease; }
-  .welcome-key{ font-size:44px; margin-bottom:6px; transform:rotate(-8deg); display:inline-block; filter:drop-shadow(0 10px 30px rgba(0,240,255,0.06)); }
-  .welcome-title{ font-weight:900; font-size:20px; margin-bottom:8px; color:var(--accent); }
+  .welcome-card{ background:linear-gradient(180deg,#07142a,#041022); padding:22px 26px; border-radius:12px; text-align:center; width:92%; max-width:640px; box-shadow:0 20px 60px rgba(0,0,0,0.7); color:#e7fbff; border:1px solid rgba(255,255,255,0.04); }
+  .welcome-key{ font-size:44px; margin-bottom:8px; transform:rotate(-6deg); display:inline-block; }
+  .welcome-title{ font-weight:900; font-size:20px; margin-bottom:6px; color:var(--math-blue); }
   .welcome-text{ color:#cfeeff; opacity:0.96; margin-bottom:12px; font-size:14px; line-height:1.4; }
   .btn{ display:inline-block; padding:10px 16px; border-radius:12px; font-weight:800; cursor:pointer; border:none; margin:6px; }
-  .btn.start{ background:linear-gradient(90deg,#00f6ff,#8ef0c2); color:#023; box-shadow:0 14px 44px rgba(0,240,255,0.06); }
-  .btn.later{ background:transparent; color:#9feef8; border:1px solid rgba(159,238,248,0.08); }
+  .btn.start{ background:linear-gradient(90deg,var(--math-blue),var(--math-purple)); color:#042032; box-shadow:0 10px 30px rgba(111,179,255,0.08); }
+  .btn.later{ background:transparent; color:#9feef8; border:1px solid rgba(159,238,248,0.10); }
 
+  /* helper text */
   .muted{ color:#9beff6cc; font-size:13px; }
-  /* footer removed as requested */
+  footer{ display:none } /* removed footer as requested */
 </style>
 </head>
 <body>
   <div id="welcome" aria-hidden="false">
     <div class="welcome-card" role="dialog" aria-modal="true">
-      <div class="flash-white" id="flash"></div>
-      <div class="welcome-key">🔬</div>
-      <div class="welcome-title">قرار دادن اعضا در چند مجموعه</div>
-      <div class="welcome-text">در این آزمایش یک عدد ممکن است هم‌زمان در چند مجموعه عضو باشد. کارت را بردار و در هر خانه‌ای که ویژگی‌اش برقرار است بینداز. بازی تجربه‌محور است؛ نگران پیام‌های خطای متنی سخت نباش.</div>
+      <div class="welcome-key">🗝️</div>
+      <div class="welcome-title">به مرحلهٔ دوم خوش آمدی</div>
+      <div class="welcome-text">در این قسمت ممکن است یک کارت را چند بار ببینی — یعنی یک عدد می‌تواند به چند جایگاه معتبر تعلق داشته باشد. کارت را بکش و در هرخانه‌ای که ویژگی‌اش برقرار است رها کن. بازی تجربه‌محور است؛ نگران پیغام‌های خطای سخت نباش.</div>
+      <div style="margin-bottom:6px;" class="muted">قواعد هر باکس در همان باکس نوشته شده — از بالای صفحه برداشته شده‌اند تا صفحه تمیزتر و تمرکزی‌تر باشد.</div>
       <div>
-        <button class="btn start" id="btnStart" style="visibility:hidden; transform:translateY(8px) scale(.98);">شروع کن</button>
-        <button class="btn later" id="btnLater" style="visibility:hidden; transform:translateY(8px) scale(.98);">بعداً</button>
+        <button class="btn start" id="btnStart">شروع کن</button>
+        <button class="btn later" id="btnLater">بعداً</button>
       </div>
     </div>
   </div>
 
-  <h1>مرحله ۲ — قرار دادن اعضا در چند مجموعه</h1>
-  <div class="subtitle">کارت‌ها را بکش و در هر مجموعه‌ای که ویژگیِ عدد برقرار است رها کن.</div>
+  <h1>مرحله ۲ — آزمایش تعاملی</h1>
+  <div class="subtitle">کارت‌ها را بکش و در هر باکس که ویژگیِ عدد برقرار است رها کن — اگر عدد چند ویژگی داشت، در هر کدام بینداز.</div>
 
   <div class="top-row">
     <div id="statusBox">وضعیت: <span id="statusText">آماده</span></div>
@@ -122,27 +117,36 @@
 
   <div class="board" aria-live="polite">
     <div class="set-box" data-set="A" id="setA">
-      <div class="set-title">A = <span class="brace-el">{ }</span></div>
-      <div class="set-note">A: اعداد فرد</div>
+      <div class="set-title">
+        A
+        <span class="set-braces">{ }</span>
+      </div>
+      <div class="set-rule">قانون: اعداد فرد — مثال: 1 , 3 , 5</div>
       <div class="set-contents" data-contents="A" aria-label="محتوای مجموعهٔ A"></div>
     </div>
 
     <div class="set-box" data-set="B" id="setB">
-      <div class="set-title">B = <span class="brace-el">{ }</span></div>
-      <div class="set-note">B: اعداد کمتر از ۴</div>
+      <div class="set-title">
+        B
+        <span class="set-braces">{ }</span>
+      </div>
+      <div class="set-rule">قانون: اعداد کمتر از ۴ — مثال: 1 , 2 , 3</div>
       <div class="set-contents" data-contents="B" aria-label="محتوای مجموعهٔ B"></div>
     </div>
 
     <div class="set-box" data-set="C" id="setC">
-      <div class="set-title">C = <span class="brace-el">{ }</span></div>
-      <div class="set-note">C: اعداد زوج</div>
+      <div class="set-title">
+        C
+        <span class="set-braces">{ }</span>
+      </div>
+      <div class="set-rule">قانون: اعداد زوج — مثال: 2 , 4 , 6</div>
       <div class="set-contents" data-contents="C" aria-label="محتوای مجموعهٔ C"></div>
     </div>
   </div>
 
   <div class="tray-area" aria-label="سینی کارت‌ها">
     <div class="cards" id="tray">
-      <!-- کارت‌ها؛ شامل دو کارت تکراری 1 و 2 -->
+      <!-- cards (شامل دو کارت اضافی 1 و 2) -->
       <div class="card" draggable="true" data-value="1">۱</div>
       <div class="card" draggable="true" data-value="2">۲</div>
       <div class="card" draggable="true" data-value="3">۳</div>
@@ -155,11 +159,11 @@
   </div>
 
 <script>
-/* ---------- قواعد (حالت D) ---------- */
+/* ---------- قواعد و حالت بازی (حالت D نگه داشته شد) ---------- */
 const setsRules = {
-  A: v => (v % 2 === 1),   // odd
-  B: v => (v < 4),         // less than 4
-  C: v => (v % 2 === 0)    // even
+  A: v => (v % 2 === 1),          // odd
+  B: v => (v < 4),                // less than 4
+  C: v => (v % 2 === 0)           // even
 };
 
 const tray = document.getElementById('tray');
@@ -168,35 +172,30 @@ const statusText = document.getElementById('statusText');
 const welcome = document.getElementById('welcome');
 const btnStart = document.getElementById('btnStart');
 const btnLater = document.getElementById('btnLater');
-const flash = document.getElementById('flash');
 
 function uniqueId(prefix='id'){ return prefix + '-' + Math.floor(Math.random()*1000000) + '-' + Date.now().toString(36); }
+
 function setStatus(text){ statusText.textContent = text; }
 
-/* تبدیل اعداد انگلیسی به فارسی */
-function toPersianDigits(s){
-  return String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
-}
-
-/* جلوه‌ها */
+/* visual helpers */
 function poofAt(box){
-  const p = document.createElement('div'); p.className='poof';
-  p.style.background = 'radial-gradient(circle at 30% 30%, rgba(102,255,240,0.95), rgba(34,200,180,0.72))';
+  const p = document.createElement('div');
+  p.className = 'poof';
+  p.style.background = 'radial-gradient(circle at 30% 30%, rgba(139,224,255,0.95), rgba(107,179,255,0.6))';
   box.appendChild(p);
-  p.style.left='50%'; p.style.top='34%'; p.style.transform='translate(-50%,-50%) scale(0)';
-  setTimeout(()=>{ p.style.transform='translate(-50%,-50%) scale(1)'; p.style.opacity='1'; },30);
-  setTimeout(()=>{ p.style.transform='translate(-50%,-50%) scale(1.6)'; p.style.opacity='0'; },240);
-  setTimeout(()=> p.remove(),520);
+  p.style.left = '50%'; p.style.top = '34%'; p.style.transform = 'translate(-50%,-50%) scale(0)';
+  setTimeout(()=>{ p.style.transform = 'translate(-50%,-50%) scale(1)'; p.style.opacity = '1'; }, 30);
+  setTimeout(()=>{ p.style.transform = 'translate(-50%,-50%) scale(1.6)'; p.style.opacity = '0'; }, 240);
+  setTimeout(()=> p.remove(), 520);
 }
 function flashSet(box){
-  box.classList.add('highlight'); setTimeout(()=> box.classList.remove('highlight'),520);
+  box.classList.add('highlight');
+  setTimeout(()=> box.classList.remove('highlight'), 520);
 }
-
-/* عنصر قرارگرفته */
 function createPlacedElement(value, setName){
   const d = document.createElement('div');
   d.className = 'placed';
-  d.textContent = toPersianDigits(value);
+  d.textContent = value;
   d.dataset.value = value;
   d.dataset.set = setName;
   d.id = uniqueId('placed');
@@ -204,7 +203,7 @@ function createPlacedElement(value, setName){
   return d;
 }
 
-/* رفتار درگ کارت‌های سینی */
+/* ---------- drag & drop ---------- */
 function makeTrayCardDraggable(el){
   if(!el.id) el.id = uniqueId('tray');
   el.addEventListener('dragstart', e=>{
@@ -219,10 +218,8 @@ function makeTrayCardDraggable(el){
     setStatus('آماده');
   });
 }
-
-/* رفتار کارت‌هایی که داخل مجموعه قرار گرفته‌اند */
 function makePlacedDraggable(el){
-  el.setAttribute('draggable','true');
+  el.setAttribute('draggable', 'true');
   el.addEventListener('dragstart', e=>{
     e.dataTransfer.setData('value', el.dataset.value);
     e.dataTransfer.setData('origin', 'placed');
@@ -235,20 +232,15 @@ function makePlacedDraggable(el){
     el.classList.remove('dragging');
     setStatus('آماده');
   });
-  // کلیک برای حذف کارت قرارگرفته (برنداشتن از سینی — کارتِ تکراری اگر وجود داشته باشد؛ در غیر این صورت حذف می‌شود)
   el.addEventListener('click', ()=>{
     el.style.transition = 'transform .28s ease, opacity .22s ease';
     el.style.transform = 'translateY(8px) scale(.9)';
     el.style.opacity = '0';
-    setTimeout(()=> {
-      el.remove();
-      updateBraces();
-      setStatus('کارت حذف شد.');
-    }, 260);
+    setTimeout(()=> el.remove(), 260);
   });
 }
 
-/* هندلرهای drop برای مجموعه‌ها */
+/* set handlers */
 boxes.forEach(box=>{
   box.addEventListener('dragover', e=> e.preventDefault());
   box.addEventListener('dragenter', e=> box.classList.add('highlight'));
@@ -264,7 +256,7 @@ boxes.forEach(box=>{
   });
 });
 
-/* رها کردن روی سینی => حذف نسخهٔ قرارگرفته (اگر کاربر نسخه‌ای را به سینی برگرداند) */
+/* tray drop => remove placed copy (return to tray) */
 tray.addEventListener('dragover', e=> e.preventDefault());
 tray.addEventListener('drop', e=>{
   e.preventDefault();
@@ -272,28 +264,24 @@ tray.addEventListener('drop', e=>{
   const dragId = e.dataTransfer.getData('dragId');
   if(origin === 'placed'){
     const placedEl = document.getElementById(dragId);
-    if(placedEl){
-      placedEl.remove();
-      setStatus('کارت برداشته شد.');
-      updateBraces();
-    }
+    if(placedEl) placedEl.remove();
+    setStatus('کارت برداشته شد.');
   }
 });
 
-/* جلوهٔ خطا (تُرک/تُپ و ×) */
+/* invalid place animation */
 function animateInvalidPlace(box){
-  box.classList.add('shake'); setTimeout(()=> box.classList.remove('shake'), 360);
   const tmp = document.createElement('div');
   tmp.className = 'card toss-anim';
   tmp.textContent = '✖';
   tmp.style.position = 'absolute';
   tmp.style.left = '50%';
-  tmp.style.top = '58%';
+  tmp.style.top = '60%';
   tmp.style.transform = 'translate(-50%,-50%)';
   tmp.style.zIndex = 999;
   tmp.style.pointerEvents = 'none';
-  tmp.style.background = 'linear-gradient(180deg, rgba(255,90,90,0.12), rgba(255,80,80,0.06))';
-  tmp.style.border = '1px solid rgba(255,90,90,0.12)';
+  tmp.style.background = 'linear-gradient(180deg, rgba(255,120,120,0.08), rgba(255,80,80,0.04))';
+  tmp.style.border = '1px solid rgba(255,120,120,0.08)';
   tmp.style.color = '#fff';
   tmp.style.padding = '8px 10px';
   tmp.style.borderRadius = '12px';
@@ -301,122 +289,81 @@ function animateInvalidPlace(box){
   setTimeout(()=> tmp.remove(), 520);
 }
 
-/* منطق رها کردن */
+/* main drop logic */
 function handleDropToSet(drag, box){
   const setName = box.dataset.set;
   const contentsEl = box.querySelector('.set-contents');
   const value = Number(drag.value);
-
-  // duplicate check (همان عدد در همان مجموعه نباشد)
   const existingVals = Array.from(contentsEl.children).map(n => Number(n.dataset.value));
   if(existingVals.includes(value)){
+    box.classList.add('shake');
+    setTimeout(()=> box.classList.remove('shake'), 360);
     animateInvalidPlace(box);
-    setStatus('قبلاً در این مجموعه قرار گرفته.');
+    setStatus('قبلاً در این خانه قرار گرفته.');
     return;
   }
-
-  // membership check با قواعد
   const rule = setsRules[setName];
   const ok = rule(value);
   if(!ok){
     animateInvalidPlace(box);
-    setStatus('این مجموعه برای این عدد مناسب نیست — کارت به سینی برمی‌گردد.');
+    setStatus('این جایگاه برای این عدد مناسب نیست — کارت به سینی برمی‌گردد.');
     return;
   }
-
-  // اگر منبع سینی است: نسخه‌ای داخل مجموعه ایجاد کن و کارت اصلی را از سینی حذف کن
   if(drag.origin === 'tray'){
-    // remove the tray original (consume the card)
-    const trayCard = document.getElementById(drag.dragId);
-    if(trayCard && trayCard.parentElement === tray) {
-      trayCard.remove(); // کارت از سینی برداشته می‌شود
-    }
     const placed = createPlacedElement(value, setName);
     contentsEl.appendChild(placed);
     flashSet(box);
     poofAt(box);
-    placed.style.transform = 'rotate(-12deg) scale(.98)'; placed.style.opacity = '0';
+    placed.style.transform = 'rotate(-12deg) scale(.98)';
+    placed.style.opacity = '0';
     setTimeout(()=>{ placed.style.transition = 'transform .36s cubic-bezier(.2,.9,.2,1), opacity .28s ease'; placed.style.transform = 'none'; placed.style.opacity = '1'; }, 10);
-    setStatus(`عدد ${toPersianDigits(value)} در مجموعهٔ ${setName} قرار گرفت.`);
-    updateBraces();
+    setStatus(`عدد ${value} در ${setName} قرار گرفت.`);
     return;
   }
-
-  // اگر منبع یک عنصر قرارگرفته بود: آن عنصر را منتقل کن (move)
   if(drag.origin === 'placed'){
     const orig = document.getElementById(drag.dragId);
-    if(!orig){ setStatus('هیچ‌چیزی برای جابجایی وجود ندارد'); return; }
+    if(!orig){ setStatus('هیچ‌چیز برای جابجایی نیست'); return; }
     const origFrom = drag.fromSet || orig.dataset.set;
     if(origFrom === setName){
-      // رها در همان مجموعه
       orig.style.visibility = 'visible';
-      setStatus('در همان مجموعه رها شد.');
+      setStatus('در همان جایگاه رها شد.');
       return;
     }
-    // انتقال عنصر بین مجموعه‌ها
     orig.remove();
     orig.dataset.set = setName;
     contentsEl.appendChild(orig);
     flashSet(box);
     poofAt(box);
     setStatus(`کارت از ${origFrom} به ${setName} منتقل شد.`);
-    updateBraces();
     return;
   }
 }
 
-/* مقداردهی اولیه دراگ کارت‌های سینی */
-document.querySelectorAll('#tray .card').forEach(el=>{
-  if(!el.id) el.id = uniqueId('tray');
-  makeTrayCardDraggable(el);
-});
+/* init draggables */
+document.querySelectorAll('#tray .card').forEach(el => makeTrayCardDraggable(el));
 
-/* welcome: فلش سفید سپس نمایش دکمه‌ها */
-function showStartFlashThenButtons(){
-  flash.classList.add('flash-in');
-  setTimeout(()=>{
-    btnStart.style.visibility = 'visible';
-    btnLater.style.visibility = 'visible';
-    btnStart.style.transform = 'translateY(0) scale(1)';
-    btnLater.style.transform = 'translateY(0) scale(1)';
-    btnStart.style.transition = 'all .34s cubic-bezier(.2,.9,.2,1)';
-    btnLater.style.transition = 'all .34s cubic-bezier(.2,.9,.2,1)';
-  }, 360);
-}
-document.addEventListener('DOMContentLoaded', ()=> {
-  setTimeout(()=> showStartFlashThenButtons(), 220);
+/* update braces { ... } reactive */
+const updateSetBraces = () => {
+  document.querySelectorAll('.set-box').forEach(box=>{
+    const list = Array.from(box.querySelectorAll('.set-contents .placed')).map(n=>n.dataset.value);
+    const bracesEl = box.querySelector('.set-braces');
+    bracesEl.textContent = '{ ' + list.join(' , ') + ' }';
+  });
+};
+const obsConfig = { childList:true, subtree:true };
+document.querySelectorAll('.set-contents').forEach(node=>{
+  const mo = new MutationObserver(()=> updateSetBraces());
+  mo.observe(node, obsConfig);
 });
+updateSetBraces();
 
-/* کنترل‌های خوش‌آمدگویی */
+/* welcome controls */
 btnStart.addEventListener('click', ()=> hideWelcome());
 btnLater.addEventListener('click', ()=> hideWelcome());
 function hideWelcome(){ if(!welcome) return; welcome.style.display = 'none'; setStatus('آماده — بازی کن!'); }
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape'){ hideWelcome(); } });
 
-/* کلید Esc برای بستن مودال */
-document.addEventListener('keydown', e=>{ if(e.key === 'Escape') hideWelcome(); });
-
-/* به‌روزرسانی آکولادها { ... } با ارقام فارسی */
-function updateBraces(){
-  document.querySelectorAll('.set-box').forEach(box=>{
-    const list = Array.from(box.querySelectorAll('.set-contents .placed')).map(n => n.dataset.value);
-    const braceEl = box.querySelector('.brace-el');
-    if(braceEl){
-      if(list.length === 0) braceEl.textContent = '{ }';
-      else {
-        const pers = list.map(v => toPersianDigits(v));
-        braceEl.textContent = '{ ' + pers.join(' , ') + ' }';
-      }
-    }
-  });
-}
-const obsCfg = { childList:true, subtree:true };
-document.querySelectorAll('.set-contents').forEach(node=>{
-  const mo = new MutationObserver(()=> updateBraces());
-  mo.observe(node, obsCfg);
-});
-updateBraces();
-
-/* وضعیت اولیه */
+/* initial status */
 setStatus('آماده');
 
 </script>
